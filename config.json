@@ -1,0 +1,17 @@
+{
+    "experiment": {
+      "name": "example_experiment",
+      "description": "An example experiment configuration",
+      "fullpath": "/path/to/experiment",
+      "saveIncompleteResults": true
+    },
+    "pavlovia": {
+      "URL": "https://pavlovia.org"
+    },
+    "json": {
+        "test":"this is a test"
+    }
+
+    
+  }
+  
