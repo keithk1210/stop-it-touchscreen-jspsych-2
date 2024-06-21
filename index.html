@@ -531,38 +531,38 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
   };
 
-  var debug = {
+//   var debug = {
 
-  type: 'survey-multi-choice',
+//   type: 'survey-multi-choice',
 
-  questions: [{
+//   questions: [{
 
-    prompt: 'Debug?',
+//     prompt: 'Debug?',
 
-    options: ['yes','no'],
+//     options: ['yes','no'],
 
-    required: true
+//     required: true
 
-  }, ],
+//   }, ],
 
-  button_label: label_next_button,
-  on_finish: function(data) {
+//   button_label: label_next_button,
+//   on_finish: function(data) {
 
-    var responses = JSON.parse(data.responses);
+//     var responses = JSON.parse(data.responses);
 
-    var code = responses.Q0;
+//     var code = responses.Q0;
 
-    if (code == 'yes') {
-      debug_enabled = true
-    } else {
-      debug_enabled = false;
-    } 
+//     if (code == 'yes') {
+//       debug_enabled = true
+//     } else {
+//       debug_enabled = false;
+//     } 
     
-    console.log("Debug enabled? " + debug_enabled)
+//     console.log("Debug enabled? " + debug_enabled)
 
-}
+// }
 
-};
+// };
 
   var webcam_permission = {
 
@@ -1005,13 +1005,15 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
     if (fullscreen){
 
-      var start_timeline = [debug,welcome
+      var start_timeline = [//debug,
+      welcome
       //webcam_permission
       , consent, participant_id, gender, fullscr, instructions]
 
     } else {
 
-      var start_timeline = [debug,welcome
+      var start_timeline = [//debug,
+      welcome
       //,webcam_permission
       , consent, participant_id, gender, instructions]
 
@@ -1033,13 +1035,15 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
       if (fullscreen) {
 
-        var start_timeline = [debug,welcome,
+        var start_timeline = [//debug,
+        welcome,
         //webcam_permission,
          consent, gender, fullscr, instructions]
 
       } else {
 
-        var start_timeline = [debug,welcome,
+        var start_timeline = [//debug,
+        welcome,
         //webcam_permission, 
         consent, gender, instructions]
 
@@ -1155,7 +1159,8 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
   timeline.push(
     //pavlovia_init,
-  start_procedure, block_procedure, end_procedure
+  //start_procedure,
+   block_procedure, end_procedure
   //,pavlovia_finish
 )
 

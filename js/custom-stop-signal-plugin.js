@@ -82,7 +82,7 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
     display_element.innerHTML = fix;
 
     console.log(display_element.innerHTML)
-    console.log(display_element['0'] + " ")
+    console.log(display_element.outerHTML)
 
     // store response
     var response = {
