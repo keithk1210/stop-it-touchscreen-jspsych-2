@@ -81,6 +81,9 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
     // draw the first images
     display_element.innerHTML = fix;
 
+    console.log(display_element.innerHTML)
+    console.log(display_element['0'] + " ")
+
     // store response
     var response = {
       rt: null,

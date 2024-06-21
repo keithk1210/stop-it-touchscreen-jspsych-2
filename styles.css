@@ -1,0 +1,9 @@
+body {
+    background-image: url('images/forward_road.png');
+}
+
+#jspsych-content {
+    background-color: #f7b500;
+    padding: 10px;
+    border-radius: 10px;
+}
