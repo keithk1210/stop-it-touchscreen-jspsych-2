@@ -2,7 +2,7 @@
     "experiment": {
       "name": "example_experiment",
       "description": "An example experiment configuration",
-      "fullpath": "/path/to/experiment",
+      "fullpath": "https://pavlovia.org/kck225/stop-it-touchscreen-jspsych-2",
       "saveIncompleteResults": true
     },
     "pavlovia": {
