@@ -6,11 +6,11 @@
 
 // ----- CUSTOMISE THE STIMULI AND RESPONSES -----
 // locate the stimuli that will be used in the experiment
-var fix_stim = 'images/fix.png';
-var go_stim1 = 'images/go_left.png';
-var go_stim2 = 'images/go_right.png';
-var stop_stim1 = 'images/stop_left.png';
-var stop_stim2 = 'images/stop_right.png';
+var fix_stim = 'images/new_roads.png';
+var go_stim1 = 'images/road_left.png';
+var go_stim2 = 'images/road_right.png';
+var stop_stim1 = 'images/road_left.png';
+var stop_stim2 = 'images/road_right.png';
 
 
 // define the appropriate response (key) for each stimulus

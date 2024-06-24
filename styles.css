@@ -1,9 +1,19 @@
 body {
-    background-image: url('images/forward_road.png');
+    background-image: url('images/background-transformed.png');
 }
 
-#jspsych-content {
-    background-color: #f7b500;
-    padding: 10px;
-    border-radius: 10px;
+.jspsych-content-trial {
+    background-color: transparent !important;
+}
+
+.larger-img {
+    transform: scale(2) !important;
+}
+
+#sideways-img-left {
+    transform: rotate(-90deg); /* Rotate 90 degrees to the left */
+}
+
+#sideways-img-right {
+    transform: rotate(90deg); /* Rotate 90 degrees to the left */
 }

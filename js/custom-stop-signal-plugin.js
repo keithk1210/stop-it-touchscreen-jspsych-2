@@ -4,6 +4,16 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
 
   jsPsych.pluginAPI.registerPreload('custom-stop-signal-plugin', 'stimulus', 'image');
 
+  function changeClass(htmlString, newClassName) {
+    // Regular expression to find the class attribute of the element with id="jspsych-content"
+    var regex = /(<div id="jspsych-content"[^>]*class=")([^"]*)(")/;
+    
+    // Replace the class attribute value with the new class name
+    var modifiedHtmlString = htmlString.replace(regex, `$1${newClassName}$3`);
+    console.log("modifiedHtmlString " +  modifiedHtmlString)
+    return modifiedHtmlString;
+  }
+
   plugin.info = {
     name: 'custom-stop-signal-plugin',
     description: '',
@@ -69,20 +79,24 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
   plugin.trial = function(display_element, trial) {
 
     // define the first and second image (note that u need to specify the id attribute as jspsych-image-keyboard-response-stimulus!)
-    var fix = '<img src="'+trial.fixation+'"id="jspsych-image-keyboard-response-stimulus"></img>';
+    var fix = '<img src="'+trial.fixation+'"id="jspsych-image-keyboard-response-stimulus class="larger-img"></img>';
+    //left
     var new_html = '<img src="'+trial.stimulus1+'" id="jspsych-image-keyboard-response-stimulus"></img>';
+    //right
     var new_html_2 = '<img src="'+trial.stimulus2+'" id="jspsych-image-keyboard-response-stimulus"></img>';
 
     // add prompt
-    if (trial.prompt !== null){
-      new_html += trial.prompt;
-    }
+    // if (trial.prompt !== null){
+    //   new_html += trial.prompt;
+    // }
 
     // draw the first images
-    display_element.innerHTML = fix;
+    display_element.innerHTML = fix
 
-    console.log(display_element.innerHTML)
-    console.log(display_element.outerHTML)
+    var element = document.getElementById('jspsych-content');
+    if (element) {
+      element.classList.add('jspsych-content-trial')
+    }
 
     // store response
     var response = {
@@ -136,7 +150,8 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
 
     if (trial.fixation_duration !== null) {
       jsPsych.pluginAPI.setTimeout(function() {
-        display_element.innerHTML = new_html;
+        
+        display_element.innerHTML = new_html
 
         // start the response listener
         var buttons_html = '<div id="jspsych-html-button-response-btngroup">';
@@ -151,15 +166,16 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
         for (var i = 0; i < trial.choices.length; i++) {
           display_element.querySelector('#jspsych-html-button-response-button-' + i).addEventListener('click', after_response(i));
         }
-
+        
       }, trial.fixation_duration)
     }
 
     // hide first stimulus if ISI is set and this is a stop trial (if stim1 and stim2 differ)
-    if (trial.stimulus1 != trial.stimulus2){
+    if (trial.stimulus1 != trial.stimulus2) {
       if (trial.ISI !== null) {
         jsPsych.pluginAPI.setTimeout(function() {
-          display_element.innerHTML = new_html_2;
+
+          display_element.innerHTML = new_html_2
 
           // start the response listener
           var buttons_html = '<div id="jspsych-html-button-response-btngroup">';
@@ -174,7 +190,6 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
           for (var i = 0; i < trial.choices.length; i++) {
             display_element.querySelector('#jspsych-html-button-response-button-' + i).addEventListener('click', after_response(i));
           }
-
         }, trial.ISI + trial.fixation_duration);
       }
     }
