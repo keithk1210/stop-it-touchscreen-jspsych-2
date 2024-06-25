@@ -1,5 +1,8 @@
 body {
-   background-color: green;
+   background-image: url(images/hotdog.png);
+   background-size: cover; /* or contain, depending on your needs */
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 button {
@@ -81,8 +84,8 @@ body, html {
 
 #upper-left {
     position: absolute;
-    top: 10%;
-    right: 10%;
+    top: 5%;
+    right: 5%;
     background-color: #f0f0f0;
     padding: 10px;
     border: 1px solid #ccc;
