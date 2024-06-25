@@ -78,12 +78,15 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
 
   plugin.trial = function(display_element, trial) {
 
-    // define the first and second image (note that u need to specify the id attribute as jspsych-image-keyboard-response-stimulus!)
-    var fix = '<img src="'+trial.fixation+'"id="jspsych-image-keyboard-response-stimulus class="larger-img"></img>';
+    //var fix = '<img src="'+trial.fixation+'"id="jspsych-image-keyboard-response-stimulus" class="larger-img"></img>';
+    var fix = `<div class="container">
+      <img src="`+trial.fixation+`"id="jspsych-image-keyboard-response-stimulus" class="larger-img"></img>
+      <img src="` + car_path+`" alt="Moving Image" id="moving-image">
+    </div>`;
     //left
-    var new_html = '<img src="'+trial.stimulus1+'" id="jspsych-image-keyboard-response-stimulus"></img>';
+    var new_html = `<img src="`+trial.stimulus1+`" id="jspsych-image-keyboard-response-stimulus" class="larger-img"></img> <img src="` + car_path+`" id="stable-car">`;
     //right
-    var new_html_2 = '<img src="'+trial.stimulus2+'" id="jspsych-image-keyboard-response-stimulus"></img>';
+    var new_html_2 = `<img src="`+trial.stimulus2+`" id="jspsych-image-keyboard-response-stimulus" class="larger-img"></img> <img src="` + car_path+`" id="stable-car">`;
 
     // add prompt
     // if (trial.prompt !== null){
@@ -93,10 +96,21 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
     // draw the first images
     display_element.innerHTML = fix
 
-    var element = document.getElementById('jspsych-content');
-    if (element) {
-      element.classList.add('jspsych-content-trial')
-    }
+     var car_elem = document.getElementById('moving-image');
+    //if (car_elem && trial.fixation_duration !== null) {
+      console.log("Duration: " + (trial.fixation_duration/1000) + 's')
+      console.log(car_elem)
+      car_elem.style.animationDuration = (trial.fixation_duration/1000) + 's';
+    //}
+
+    
+  
+    console.log("Fix:\n" + display_element.outerHTML)
+
+    // var element = document.getElementById('jspsych-content');
+    // if (element) {
+    //   element.classList.add('jspsych-content-trial')
+    // }
 
     // store response
     var response = {
@@ -152,20 +166,21 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
       jsPsych.pluginAPI.setTimeout(function() {
         
         display_element.innerHTML = new_html
+        console.log("Normal trial:\n" + display_element.outerHTML)
 
         // start the response listener
-        var buttons_html = '<div id="jspsych-html-button-response-btngroup">';
-        for (var i = 0; i < trial.choices.length; i++) {
-          buttons_html += '<button class="jspsych-btn" id="jspsych-html-button-response-button-' + i +'" data-choice="'+i+'">'+trial.choices[i]+'</button>';
-        }
-        buttons_html += '</div>';
+        // var buttons_html = '<div id="jspsych-html-button-response-btngroup">';
+        // for (var i = 0; i < trial.choices.length; i++) {
+        //   buttons_html += '<button class="jspsych-btn" id="jspsych-html-button-response-button-' + i +'" data-choice="'+i+'">'+trial.choices[i]+'</button>';
+        // }
+        // buttons_html += '</div>';
 
-        display_element.innerHTML += buttons_html;
+        // display_element.innerHTML += buttons_html;
 
         // add event listeners to buttons
-        for (var i = 0; i < trial.choices.length; i++) {
-          display_element.querySelector('#jspsych-html-button-response-button-' + i).addEventListener('click', after_response(i));
-        }
+        // for (var i = 0; i < trial.choices.length; i++) {
+        //   display_element.querySelector('#jspsych-html-button-response-button-' + i).addEventListener('click', after_response(i));
+        // }
         
       }, trial.fixation_duration)
     }
@@ -176,20 +191,21 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
         jsPsych.pluginAPI.setTimeout(function() {
 
           display_element.innerHTML = new_html_2
+          console.log("Stop trial:\n" + display_element.outerHTML)
 
           // start the response listener
-          var buttons_html = '<div id="jspsych-html-button-response-btngroup">';
-          for (var i = 0; i < trial.choices.length; i++) {
-            buttons_html += '<button class="jspsych-btn" id="jspsych-html-button-response-button-' + i +'" data-choice="'+i+'">'+trial.choices[i]+'</button>';
-          }
-          buttons_html += '</div>';
+          // var buttons_html = '<div id="jspsych-html-button-response-btngroup">';
+          // for (var i = 0; i < trial.choices.length; i++) {
+          //   buttons_html += '<button class="jspsych-btn" id="jspsych-html-button-response-button-' + i +'" data-choice="'+i+'">'+trial.choices[i]+'</button>';
+          // }
+          // buttons_html += '</div>';
 
-          display_element.innerHTML += buttons_html;
+          // display_element.innerHTML += buttons_html;
 
           // add event listeners to buttons
-          for (var i = 0; i < trial.choices.length; i++) {
-            display_element.querySelector('#jspsych-html-button-response-button-' + i).addEventListener('click', after_response(i));
-          }
+          // for (var i = 0; i < trial.choices.length; i++) {
+          //   display_element.querySelector('#jspsych-html-button-response-button-' + i).addEventListener('click', after_response(i));
+          // }
         }, trial.ISI + trial.fixation_duration);
       }
     }

@@ -6,11 +6,13 @@
 
 // ----- CUSTOMISE THE STIMULI AND RESPONSES -----
 // locate the stimuli that will be used in the experiment
-var fix_stim = 'images/new_roads.png';
-var go_stim1 = 'images/road_left.png';
-var go_stim2 = 'images/road_right.png';
-var stop_stim1 = 'images/road_left.png';
-var stop_stim2 = 'images/road_right.png';
+var fix_stim = 'images/Mountains.png';
+var go_stim1 = 'images/Mountains_left.png';
+var go_stim2 = 'images/Mountains_right.png';
+var stop_stim1 = 'images/Mountains_left.png';
+var stop_stim2 = 'images/Mountains_right.png'
+
+var car_path = 'images/car_red.png';
 
 
 // define the appropriate response (key) for each stimulus
@@ -52,7 +54,7 @@ var NexpBL = 1;
 // ----- CUSTOMISE THE TIME INTERVALS (in milliseconds)-----
 
 var ITI = 500;    // fixed blank intertrial interval
-var FIX = 250;    // fixed fixation presentation
+var FIX = 250 * 4;    // fixed fixation presentation
 var MAXRT = 1250; // fixed maximum reaction time
 var SSD = 200;    // start value for the SSD tracking procedure; will be updated throughout the experiment
 var SSDstep = 50; // step size of the SSD tracking procedure; this is also the lowest possible SSD
