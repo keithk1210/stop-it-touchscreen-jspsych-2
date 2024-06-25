@@ -12,6 +12,10 @@ var go_stim2 = 'images/Mountains_right.png';
 var stop_stim1 = 'images/Mountains_left.png';
 var stop_stim2 = 'images/Mountains_right.png'
 
+var go_light = 'images/green_light.png'
+var stop_light = 'images/red_light.png'
+var blank_light = 'images/stoplight_blank.png'
+
 var car_path = 'images/car_red.png';
 
 

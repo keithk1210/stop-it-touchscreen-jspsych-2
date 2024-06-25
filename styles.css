@@ -56,6 +56,28 @@ body, html {
     transform: translateX(-50%);
 }
 
+#upper-left {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #f0f0f0;
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
+.big-text {
+    font-size: large;
+}
+
+#light {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #f0f0f0;
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
 @keyframes moveImage {
     0% {
         bottom: 0;
