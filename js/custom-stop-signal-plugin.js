@@ -82,19 +82,16 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
     var fix = `<div class="container">
       <img src="`+trial.fixation+`"id="jspsych-image-keyboard-response-stimulus" class="larger-img"></img>
       <img src="` + car_path+`" alt="Moving Image" id="moving-image">
-      <img src="` + go_light+`" id="light">
+      
     </div>`;
-    //left
+
     var new_html = ` <div class="container">
-                    <img src="`+trial.stimulus1+`" id="jspsych-image-keyboard-response-stimulus" class="larger-img"></img>
-                    <img src="` + car_path+`" id="stable-car">
-                    <img src="` + stop_light +`" id="light">
+                    <img src="` + trial.stimulus1 +`" class="larger-img">
+                    <img src="` + car_path+`" alt="Moving Image" id="moving-image">
                     `;
-    //right
     var new_html_2 = `  <div class="container">
-                      <img src="`+trial.stimulus2+`" id="jspsych-image-keyboard-response-stimulus" class="larger-img"></img> 
-                      <img src="` + car_path+`" id="stable-car">
-                      <img src="` + stop_light + `" id="light">
+                      <img src="` + trial.stimulus2 +`" class="larger-img">
+                      <img src="` + car_path+`" alt="Moving Image" id="moving-image">
                       `;
 
     // add prompt
@@ -174,8 +171,7 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
     if (trial.fixation_duration !== null) {
       jsPsych.pluginAPI.setTimeout(function() {
 
-        
-
+  
         // start the response listener
         var buttons_html = ' <div id="upper-left">';
         for (var i = 0; i < trial.choices.length; i++) {
@@ -200,8 +196,7 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
       if (trial.ISI !== null) {
         jsPsych.pluginAPI.setTimeout(function() {
 
-          
-
+        
           // start the response listener
           var buttons_html = '<div id="upper-left">';
           for (var i = 0; i < trial.choices.length; i++) {
@@ -214,9 +209,9 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
           console.log("Stop trial:\n" + display_element.outerHTML)
 
           // add event listeners to buttons
-          // for (var i = 0; i < trial.choices.length; i++) {
-          //   display_element.querySelector('#jspsych-html-button-response-button-' + i).addEventListener('click', after_response(i));
-          // }
+          for (var i = 0; i < trial.choices.length; i++) {
+            display_element.querySelector('#jspsych-html-button-response-button-' + i).addEventListener('click', after_response(i));
+          }
         }, trial.ISI + trial.fixation_duration);
       }
     }

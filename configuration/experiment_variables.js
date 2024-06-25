@@ -6,14 +6,19 @@
 
 // ----- CUSTOMISE THE STIMULI AND RESPONSES -----
 // locate the stimuli that will be used in the experiment
-var fix_stim = 'images/Mountains.png';
-var go_stim1 = 'images/Mountains_left.png';
-var go_stim2 = 'images/Mountains_right.png';
-var stop_stim1 = 'images/Mountains_left.png';
-var stop_stim2 = 'images/Mountains_right.png'
+var fix_stim = 'images/fix_road_1.png';
 
-var go_light = 'images/green_light.png'
-var stop_light = 'images/red_light.png'
+
+
+var go_stim1 = 'images/go_left_1.png';
+var go_stim2 = 'images/go_right_1.png';
+var stop_stim1 = 'images/stop_left_1.png';
+var stop_stim2 = 'images/stop_right_1.png'
+
+var road_path = 'images/Mountains.png'
+var left_road_path = 'images/Mountains_left.png'
+var right_road_path = 'images/Mountains_right.png'
+
 var blank_light = 'images/stoplight_blank.png'
 
 var car_path = 'images/car_red.png';
