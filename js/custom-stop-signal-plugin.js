@@ -82,14 +82,13 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
     var fix = `<div class="container">
       <img src="`+trial.fixation+`"id="jspsych-image-keyboard-response-stimulus" class="larger-img"></img>
       <img src="` + car_path+`" alt="Moving Image" id="moving-image">
-      
     </div>`;
 
-    var new_html = ` <div class="container">
+    var new_html = ` 
                     <img src="` + trial.stimulus1 +`" class="larger-img">
                     <img src="` + car_path+`" alt="Moving Image" id="moving-image">
                     `;
-    var new_html_2 = `  <div class="container">
+    var new_html_2 = `
                       <img src="` + trial.stimulus2 +`" class="larger-img">
                       <img src="` + car_path+`" alt="Moving Image" id="moving-image">
                       `;
@@ -103,7 +102,7 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
     display_element.innerHTML = fix
 
      var car_elem = document.getElementById('moving-image');
-    //if (car_elem && trial.fixation_duration !== null) {
+    
       console.log("Duration: " + (trial.fixation_duration/1000) + 's')
       console.log(car_elem)
       car_elem.style.animationDuration = (trial.fixation_duration/1000) + 's';
@@ -113,7 +112,7 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
   
     console.log("Fix:\n" + display_element.outerHTML)
 
-    // var element = document.getElementById('jspsych-content');
+    // var element = document.getElementsByClassName('jspsych-content-wrapper')[0];
     // if (element) {
     //   element.classList.add('jspsych-content-trial')
     // }
@@ -177,9 +176,9 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
         for (var i = 0; i < trial.choices.length; i++) {
           buttons_html += '<button class="jspsych-btn" id="jspsych-html-button-response-button-' + i +'" data-choice="'+i+'">'+trial.choices[i]+'</button>';
         }
-        buttons_html += '</div> ';
+        buttons_html += '</div>';
 
-        display_element.innerHTML = new_html + buttons_html + "</div>";
+        display_element.innerHTML = '<div class="container">' + buttons_html + new_html + "</div>";
 
         console.log("Normal trial:\n" + display_element.outerHTML)
 
@@ -204,9 +203,8 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
           }
           buttons_html += '</div> ';
 
-          display_element.innerHTML = new_html_2 + buttons_html + "</div>";
+          display_element.innerHTML = '<div class="container">' + buttons_html  + new_html_2 + "</div>";
 
-          console.log("Stop trial:\n" + display_element.outerHTML)
 
           // add event listeners to buttons
           for (var i = 0; i < trial.choices.length; i++) {
