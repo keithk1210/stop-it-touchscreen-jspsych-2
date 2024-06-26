@@ -38,33 +38,11 @@ body, html {
     top: 0;
     left: 0;
 }
-.jspsych-content-trial {
-    /*align-self: center;
-    margin: auto !important;
-    position: relative;*/
-}
 
-.larger-img {
+.stim-img {
     /*transform: scale(1.5) !important;*/
     width: 100%;
     height: 100%;
-}
-.larger-img-left {
-    transform: scale(2) !important;
-    transform-origin: left center !important;/* Pivot point for rotation */
-
-}
-.larger-img-right {
-    transform: scale(2) !important;
-    transform-origin: right center !important; /* Pivot point for rotation */
-}
-
-#sideways-img-left {
-    transform: rotate(-90deg); /* Rotate 90 degrees to the left */
-}
-
-#sideways-img-right {
-    transform: rotate(90deg); /* Rotate 90 degrees to the left */
 }
 
 #moving-image {
@@ -82,7 +60,7 @@ body, html {
     transform: translateX(-50%) ;
 }
 
-#upper-left {
+#btn-container {
     position: absolute;
     top: 5%;
     right: 5%;
@@ -90,9 +68,6 @@ body, html {
     padding: 10px;
     border: 1px solid #ccc;
 }
-
-
-
 
 .light {
     position: absolute;

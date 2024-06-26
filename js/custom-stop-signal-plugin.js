@@ -78,44 +78,25 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
 
   plugin.trial = function(display_element, trial) {
 
-    //var fix = '<img src="'+trial.fixation+'"id="jspsych-image-keyboard-response-stimulus" class="larger-img"></img>';
-    var fix = `<div class="container">
-      <img src="`+trial.fixation+`"id="jspsych-image-keyboard-response-stimulus" class="larger-img"></img>
+    var fix = 
+    `<div class="container">
+      <img src="`+trial.fixation+`"id="jspsych-image-keyboard-response-stimulus" class="stim-img"></img>
       <img src="` + car_path+`" alt="Moving Image" id="moving-image">
     </div>`;
 
-    var new_html = ` 
-                    <img src="` + trial.stimulus1 +`" class="larger-img">
-                    <img src="` + car_path+`" alt="Moving Image" id="moving-image">
-                    `;
-    var new_html_2 = `
-                      <img src="` + trial.stimulus2 +`" class="larger-img">
-                      <img src="` + car_path+`" alt="Moving Image" id="moving-image">
-                      `;
+    var new_html =  
+    `<img src="` + trial.stimulus1 +`" class="stim-img">
+    <img src="` + car_path+`" alt="Moving Image" id="moving-image">`;
+    var new_html_2 = 
+    `<img src="` + trial.stimulus2 +`" class="stim-img">
+    <img src="` + car_path+`" alt="Moving Image" id="moving-image">`;
 
-    // add prompt
-    // if (trial.prompt !== null){
-    //   new_html += trial.prompt;
-    // }
-
-    // draw the first images
+    // add the road, and car to the html.
     display_element.innerHTML = fix
 
-     var car_elem = document.getElementById('moving-image');
-    
-      console.log("Duration: " + (trial.fixation_duration/1000) + 's')
-      console.log(car_elem)
-      car_elem.style.animationDuration = (trial.fixation_duration/1000) + 's';
-    //}
-
-    
-  
-    console.log("Fix:\n" + display_element.outerHTML)
-
-    // var element = document.getElementsByClassName('jspsych-content-wrapper')[0];
-    // if (element) {
-    //   element.classList.add('jspsych-content-trial')
-    // }
+    //animate the car
+    var car_elem = document.getElementById('moving-image');
+    car_elem.style.animationDuration = (trial.fixation_duration/1000) + 's';
 
     // store response
     var response = {
@@ -165,22 +146,19 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
       }
     };
 
-    
-
     if (trial.fixation_duration !== null) {
       jsPsych.pluginAPI.setTimeout(function() {
-
-  
         // start the response listener
-        var buttons_html = ' <div id="upper-left">';
+
+        //create the button group
+        var buttons_html = ' <div id="btn-container">';
         for (var i = 0; i < trial.choices.length; i++) {
           buttons_html += '<button class="jspsych-btn" id="jspsych-html-button-response-button-' + i +'" data-choice="'+i+'">'+trial.choices[i]+'</button>';
         }
         buttons_html += '</div>';
 
+        //enclose button container, road, car in "Container" to allow for absolute positioning
         display_element.innerHTML = '<div class="container">' + buttons_html + new_html + "</div>";
-
-        console.log("Normal trial:\n" + display_element.outerHTML)
 
         // add event listeners to buttons
         for (var i = 0; i < trial.choices.length; i++) {
@@ -194,17 +172,15 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
     if (trial.stimulus1 != trial.stimulus2) {
       if (trial.ISI !== null) {
         jsPsych.pluginAPI.setTimeout(function() {
-
-        
           // start the response listener
-          var buttons_html = '<div id="upper-left">';
+          var buttons_html = '<div id="btn-container">';
           for (var i = 0; i < trial.choices.length; i++) {
             buttons_html += '<button class="jspsych-btn" id="jspsych-html-button-response-button-' + i +'" data-choice="'+i+'">'+trial.choices[i]+'</button>';
           }
           buttons_html += '</div> ';
 
+          //enclose button container, road, car in "Container" to allow for absolute positioning
           display_element.innerHTML = '<div class="container">' + buttons_html  + new_html_2 + "</div>";
-
 
           // add event listeners to buttons
           for (var i = 0; i < trial.choices.length; i++) {
