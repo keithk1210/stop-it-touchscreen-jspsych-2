@@ -69,15 +69,6 @@ body, html {
     border: 1px solid #ccc;
 }
 
-.light {
-    position: absolute;
-    top: 0;
-    left: 0;
-    background-color: #f0f0f0;
-    padding: 10px;
-    border: 1px solid #ccc;
-}
-
 @keyframes moveImage {
     0% {
         bottom: 0;
