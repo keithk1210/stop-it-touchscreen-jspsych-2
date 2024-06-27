@@ -218,9 +218,6 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
     window_resolution: window.innerWidth + ' x ' + window.innerHeight, // this will be updated throughout the experiment
 
   });
-
-
-
   // define the images to be loaded, the actual preloading occurs in the jsPsych.init function at the bottom
 
   var pre_load_stimuli = [fix_stim, go_stim1, go_stim2, stop_stim1, stop_stim2];
@@ -1006,15 +1003,15 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
     if (fullscreen){
 
       var start_timeline = [//debug,
-      welcome
-      //webcam_permission
+      welcome,
+      webcam_permission
       , consent, participant_id, gender, fullscr, instructions]
 
     } else {
 
       var start_timeline = [//debug,
       welcome
-      //,webcam_permission
+      ,webcam_permission
       , consent, participant_id, gender, instructions]
 
     }
@@ -1037,14 +1034,14 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
         var start_timeline = [//debug,
         welcome,
-        //webcam_permission,
+        webcam_permission,
          consent, gender, fullscr, instructions]
 
       } else {
 
         var start_timeline = [//debug,
         welcome,
-        //webcam_permission, 
+        webcam_permission, 
         consent, gender, instructions]
 
       }
@@ -1158,8 +1155,8 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
 
   timeline.push(
-    //pavlovia_init,
-  //start_procedure,
+    // pavlovia_init,
+  start_procedure,
    block_procedure, end_procedure
   //,pavlovia_finish
 )

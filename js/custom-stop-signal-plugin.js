@@ -78,6 +78,41 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
 
   plugin.trial = function(display_element, trial) {
 
+    window.Realeyesit.experienceSdk.on('facialExpressionsDetected', (params) => {
+      max_emotion = null
+      max_prob = 0
+      //console.log(params.results.predictions)
+
+      var x = ["PLACEHOLDER"]
+      var y = [100]
+
+      for (predict in params.results.predictions) {
+          for (elem in params.results.predictions[predict]) {
+              if (elem == 'linear') {
+                  //if (params.results.predictions[predict][elem] > max_prob) {
+                  x.push(predict)
+                  y.push(Math.round(params.results.predictions[predict][elem] * 100) + "")
+                  //console.log(params.results.predictions[predict][elem] * 100)
+              }
+          }
+      }
+
+      var data = [
+          {
+              histfunc: "count",
+              y: y,
+              x: x,
+              type: "bar",
+              name: "count",
+          }
+      ]
+
+      console.log(x)
+      console.log(y)
+      
+  });
+
+
     var fix = 
     `<div class="container">
       <img src="`+trial.fixation+`"id="jspsych-image-keyboard-response-stimulus" class="stim-img"></img>
@@ -138,7 +173,7 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
 
         // after a valid response, the stimulus will have the CSS class 'responded'
         // which can be used to provide visual feedback that a response was recorded
-        display_element.querySelector('#jspsych-image-keyboard-response-stimulus').className += ' responded';
+        //display_element.querySelector('#jspsych-image-keyboard-response-stimulus').className += ' responded';
 
         if (trial.response_ends_trial) {
           end_trial();
