@@ -78,38 +78,33 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
 
   plugin.trial = function(display_element, trial) {
 
+
+    var emotions = {
+      confusion: [0],
+      disgust: [0],
+      contempt: [0],
+      fear: [0],
+      empathy: [0],
+      happy: [0],
+      surprise: [0],
+      attention: [0]
+    }
+
+    let numFacialExpressionsDetected = 0
+
     window.Realeyesit.experienceSdk.on('facialExpressionsDetected', (params) => {
       max_emotion = null
       max_prob = 0
-      //console.log(params.results.predictions)
-
-      var x = ["PLACEHOLDER"]
-      var y = [100]
+      numFacialExpressionsDetected += 1
 
       for (predict in params.results.predictions) {
           for (elem in params.results.predictions[predict]) {
               if (elem == 'linear') {
-                  //if (params.results.predictions[predict][elem] > max_prob) {
-                  x.push(predict)
-                  y.push(Math.round(params.results.predictions[predict][elem] * 100) + "")
-                  //console.log(params.results.predictions[predict][elem] * 100)
+                  emotions[predict][0] += Math.round(params.results.predictions[predict][elem] * 100)
               }
           }
       }
-
-      var data = [
-          {
-              histfunc: "count",
-              y: y,
-              x: x,
-              type: "bar",
-              name: "count",
-          }
-      ]
-
-      console.log(x)
-      console.log(y)
-      
+  
   });
 
 
@@ -145,6 +140,14 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
       // kill any remaining setTimeout handlers
       jsPsych.pluginAPI.clearAllTimeouts();
 
+      for (let emotion in emotions) {
+        emotions[emotion] /= numFacialExpressionsDetected
+      }
+
+      positive_emotion_score = emotions['happy']
+      negative_emotion_score = (emotions['confusion'] + emotions['disgust'] + emotions['contempt'] + emotions['fear']) / 4
+      attention_score = emotions['attention']
+
       // gather the data to store for the trial
       var trial_data = {
         "raw_rt": response.rt,
@@ -153,13 +156,17 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
         "second_stimulus": trial.stimulus2,
         "onset_of_first_stimulus": trial.fixation_duration,
         "onset_of_second_stimulus": trial.ISI + trial.fixation_duration,
-        "button_press": response.button
+        "button_press": response.button,
+        "positive_emotion_score": positive_emotion_score,
+        "negative_emotion_score": negative_emotion_score,
+        "attention_score": attention_score
       };
 
       // clear the display
       display_element.innerHTML = '';
 
       // move on to the next trial
+      console.log(emotions);
       jsPsych.finishTrial(trial_data);
     };
 

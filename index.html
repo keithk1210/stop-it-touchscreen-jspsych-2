@@ -40,7 +40,10 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
   <script src="js/jspsych-6.0.5/plugins/jspsych-call-function.js"></script>
   <script src="js/jspsych-6.0.5/plugins/jspsych-fullscreen.js"></script>
 
+  <!--
+  -->
   <script type="text/javascript" src="https://lib.pavlovia.org/vendors/jquery-2.2.0.min.js"></script>
+  <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
 
   <script src="js/bowser.js"></script> <!-- a browser and operating system detector -->
 
@@ -106,41 +109,6 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
             reConfig.cameraStream = cameraStream;
             window.Realeyesit.experienceSdk.init(reConfig);
             /* Subscribe to facial expression detected event and error event available events */
-            window.Realeyesit.experienceSdk.on('facialExpressionsDetected', (params) => {
-                max_emotion = null
-                max_prob = 0
-                //console.log(params.results.predictions)
-
-                var x = ["PLACEHOLDER"]
-                var y = [100]
-
-                for (predict in params.results.predictions) {
-                    for (elem in params.results.predictions[predict]) {
-                        if (elem == 'linear') {
-                            //if (params.results.predictions[predict][elem] > max_prob) {
-                            x.push(predict)
-                            y.push(Math.round(params.results.predictions[predict][elem] * 100) + "")
-                            //console.log(params.results.predictions[predict][elem] * 100)
-                        }
-                    }
-                }
-
-                var data = [
-                    {
-                        histfunc: "count",
-                        y: y,
-                        x: x,
-                        type: "bar",
-                        name: "count",
-                    }
-                ]
-
-                console.log(x)
-                console.log(y)
-
-                //updateResults(max_prob,taFacialExpressionResults)
-                 
-            });
             window.Realeyesit.experienceSdk.error((err) => {
                 updateResults(' \n\n Error occurred: ' + JSON.stringify(err), taStatusResults);
             });
@@ -800,7 +768,7 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
   var block_feedback = {
 
-    type: 'html-keyboard-response',
+    type: 'html-button-response',
 
     trial_duration: bFBT,
 
@@ -808,11 +776,11 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
       if (block_ind == NexpBL){
 
-        return ['p','space']
+        return ['Proceed']
 
       } else {
 
-        return ['p'] // 'p' can be used to skip the feedback, useful for debugging
+        return ['Skip'] // 'p' can be used to skip the feedback, useful for debugging
 
       }
 
@@ -866,7 +834,7 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
       // in the last block, we should not say that there will be a next block
 
-      if (block_ind == NexpBL){
+      if (block_ind == NexpBL) {
 
         var next_block_text = final_block_msg
 
@@ -890,8 +858,11 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
           }
 
-          document.getElementById("timer").innerHTML = count ;
-
+          let timer = document.getElementById("timer")
+          if (timer) {
+            timer.innerHTML = count;
+          }
+          
         }
 
         var next_block_text = next_block_msg // insert countdown timer
@@ -959,7 +930,7 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
       var d = selected_data.values() // get the data values
       // make an array that specifies the order of the object properties
       var arr = ['participantID','age','gender','block_i','trial_i','stim','signal','SSD','response','rt','correct','focus','Fullscreen',
-      'time_elapsed','browser_name','browser_version','os_name','os_version','tablet','mobile','screen_resolution','window_resolution'];
+      'time_elapsed','browser_name','browser_version','os_name','os_version','tablet','mobile','screen_resolution','window_resolution','positive_emotion_score','negative_emotion_score','attention_score'];
       new_arr = [] // we will fill this array with the ordered data
       function myFunction(item) { // this is function is called in the arr.forEach call below
         new_obj[item] = obj[item]
@@ -1227,7 +1198,7 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
           data_row = "participantID,age,gender,block_i,trial_i,stim,signal,SSD,response,rt,correct," +
                         "focus,Fullscreen,time_elapsed,browser_name,browser_version,os_name,os_version," +
-                        "tablet,mobile,screen_resolution,window_resolution\n"
+                        "tablet,mobile,screen_resolution,window_resolution,positive_emotion_score,negative_emotion_score,attention_score\n"
           appendData('SST_data_'+ subjID +'.csv',data_row)
 
         } else if (data.trial_type == 'custom-stop-signal-plugin'){ // append data each stimulus
@@ -1236,7 +1207,7 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
                         data.stim + ',' + data.signal + ',' + data.SSD + ',' + data.response + ',' + data.rt + ',' + data.correct + ',' +
                         data.focus + ',' + data.Fullscreen + ',' + data.time_elapsed + ',' + data.browser_name + ',' +
                         data.browser_version + ',' + data.os_name + ',' + data.os_version + ',' + data.tablet + ',' + data.mobile + ',' +
-                        data.screen_resolution + ',' + data.window_resolution + '\n'
+                        data.screen_resolution + ',' + data.window_resolution + ',' + data.positive_emotion_score + ',' + data.negative_emotion_score + ',' + data.attention_score + '\n'
           appendData('SST_data_'+ subjID +'.csv',data_row)
 
         }
