@@ -30,7 +30,7 @@ function addIdToHTMLString(str,idToInsert) {
 }
 
 async function init() {
-
+  console.log("wait... im actually here")
   let video = document.getElementById('video');
 
     updateResults('Init has been called!', taStatusResults);

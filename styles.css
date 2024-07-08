@@ -69,6 +69,9 @@ body, html {
     border: 1px solid #ccc;
 }
 
+
+
+
 @keyframes moveImage {
     0% {
         bottom: 0;
