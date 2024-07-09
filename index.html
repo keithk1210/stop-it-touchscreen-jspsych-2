@@ -60,6 +60,7 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
   <script src="configuration/text_variables.js"></script> <!-- holds all the text variables for easy modification/translation -->
 
   <script src="webgazer.js" type="text/javascript" ></script>
+  <script src="https://unpkg.com/heatmap.js"></script>
   <!---
     <script src="reExperienceSdk.min.js"></script>
   -->
@@ -84,6 +85,41 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
   // Initialize some important variables
 
   var cameraStream = null;
+  var gazeData = [];
+
+  function countCoordinates(pairs) {
+    const counts = {};
+
+    pairs.forEach(pair => {
+      const key = JSON.stringify(pair); // Convert the pair to a string
+
+      if (counts[key]) {
+        counts[key]++;
+      } else {
+        counts[key] = 1;
+      }
+    });
+
+    let dataPoints = [];
+    console.log("counts:" )
+    console.log(counts)
+
+    for (const key in counts) {
+      if (counts.hasOwnProperty(key)) {
+        let coord = JSON.parse(key)
+        dataPoints.push({
+          x:coord[0],
+          y:coord[1],
+          value:counts[key]
+        })
+      }
+    } 
+
+    console.log("dataPoints ")
+    console.log(dataPoints)
+
+    return dataPoints;
+  }
 
   function onFail() {
     console.error("Failed to start WebGazer. No stream available.");
@@ -151,7 +187,8 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
         }
         var xprediction = data.x; // these x coordinates are relative to the viewport
         var yprediction = data.y; // these y coordinates are relative to the viewport
-        console.log("x: " + xprediction + ", y: " + yprediction);
+        //console.log("x: " + xprediction + ", y: " + yprediction);
+        gazeData.push([xprediction,yprediction]);
     }).begin(onFail,cameraStream);
 
   }
@@ -409,11 +446,7 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
     },
 
-    on_finish: function(trial) { 
-      
-      beginWebgazer()
-
-    }
+    
 
   };
   // these events turn fullscreen mode on in the beginning and off at the end, if enabled (see experiment_variables.js)
@@ -632,11 +665,25 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
     type: 'html-button-response',
 
     stimulus: text_at_start_block,
-    choices: ['Proceed']
+    choices: ['Proceed'],
+
 
   };
 
+  var start_webgazer= {
 
+    type: 'html-button-response',
+
+    stimulus: 'Press the button to begin eyetrackings',
+    choices: ['Start Eyetracking'],
+
+    on_finish: function(trial) { 
+      
+      beginWebgazer();
+
+    }
+
+  };
 
   // get ready for beginning of block
 
@@ -985,6 +1032,33 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
     on_start: function(data) {
 
+      var config = {
+        container: document.getElementsByClassName('jspsych-display-element')[0],
+        radius: 10,
+        maxOpacity: 1,
+        minOpacity: 0,
+        blur: .75
+      };
+      // create heatmap with configuration
+      
+
+      let heatMapData = []
+
+      for (let i = 0; i < gazeData.length; i++) {
+        heatMapData.push([Math.round(gazeData[i][0]),Math.round(gazeData[i][1])])
+      }    
+
+
+      // const result = countCoordinates(gazeData);
+      var heatmapInstance = h337.create(config);
+
+      heatmapInstance.setData({
+        min: 1,
+        max: 5,
+        data: countCoordinates(heatMapData)
+      });
+      heatmapInstance.repaint();
+      
       var subjID = jsPsych.data.get().last(1).values()[0]['participantID'];
       var full_data = jsPsych.data.get();
       var ignore_columns = ['raw_rt','trial_type','first_stimulus','second_stimulus','onset_of_first_stimulus',
@@ -1193,9 +1267,11 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
   timeline.push(
     // pavlovia_init,
   start_procedure,
+  start_webgazer,
    block_procedure, end_procedure
   //,pavlovia_finish
 )
+
 
 
 
