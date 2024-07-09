@@ -60,10 +60,6 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
   <script src="configuration/text_variables.js"></script> <!-- holds all the text variables for easy modification/translation -->
 
   <script src="webgazer.js" type="text/javascript" ></script>
-
-  <script src="https://codesdwncdn.realeyesit.com/experience-sdk/xp/release/1/reExperienceSdk.min.js"></script>
-  
-
   <!---
     <script src="reExperienceSdk.min.js"></script>
   -->
@@ -119,7 +115,7 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
         console.error('Error accessing camera:', error);
         // Handle error as needed
     }
-}
+  }
 
   // Call function to initialize camera stream
 
@@ -1025,14 +1021,14 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
       var start_timeline = [//debug,
       welcome,
-      webcam_permission
+      //webcam_permission
       , consent, participant_id, gender, fullscr, instructions]
 
     } else {
 
       var start_timeline = [//debug,
-      welcome
-      ,webcam_permission
+      welcome,
+      //webcam_permission
       , consent, participant_id, gender, instructions]
 
     }
@@ -1055,14 +1051,14 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
         var start_timeline = [//debug,
         welcome,
-        webcam_permission,
+        //webcam_permission,
          consent, gender, fullscr, instructions]
 
       } else {
 
         var start_timeline = [//debug,
         welcome,
-        webcam_permission, 
+        //webcam_permission, 
         consent, gender, instructions]
 
       }
@@ -1240,7 +1236,7 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
       id_index = 2;
  // point in experiment when particpant id is manually entered. see 'start_timeline'
-      if (online){
+      if (online) {
 
         var subjID = jsPsych.data.get().last(1).values()[0]['participantID'];
 
