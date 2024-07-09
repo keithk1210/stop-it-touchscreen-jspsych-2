@@ -80,7 +80,3 @@ body, html {
         bottom: calc(110% - 100px); /* Adjust the value to fit your image height */
     }
 }
-
-#webgazerVideoContainer > * {
-    display: none !important;
-}
