@@ -83,5 +83,5 @@ body, html {
 
 #webgazerVideoContainer {
     bottom: 0px !important;
-    top: 100% !important;
+    top: auto !important;
 }
