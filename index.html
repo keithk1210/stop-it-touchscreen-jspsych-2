@@ -52,7 +52,11 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
   <script src="js/sprintf.js"></script> <!-- format variables in a string, used for customizable feedback strings in which the variables are not yet declared -->
   <script src="js/custom-stop-signal-plugin.js"></script> <!-- custom plugin for the main stop-signal trial based on the image-keyboard-response plugin -->
+
+  <!--
   <script src="js/custom-realeyes-plugin.js"></script> <!-- custom plugin for the main stop-signal trial based on the image-keyboard-response plugin -->
+  -->
+  
 
   <script src="js/jspsych-detect-held-down-keys.js"></script> <!-- custom plugin for detecting if a key is being held down -->
   <script src="configuration/experiment_variables.js"></script> <!-- parameters to configure the experiment -->
@@ -192,70 +196,72 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
     }).begin(onFail,cameraStream);
 
   }
+  
+  
+  //Stop using 
+  // async function init() {
+  //   await initializeCameraStream();
+  //   updateResults('Init has been called!', taStatusResults);
+  //   updateResults('Please wait until Init finishes!', taStatusResults);
+  //   btInit.disabled = true;
+  //   /* Configuration of ExperienceSDK */
+  //   var reConfig = {
+  //       autoStart: false,
+  //       accountHash: '3TFXMS',
+  //       predictionPerSecondLimit: 2,
+  //   };
+  //   /* End of configuration of ExperienceSDK*/
+  //   /* Access camera stream */
 
-  async function init() {
-    await initializeCameraStream();
-    updateResults('Init has been called!', taStatusResults);
-    updateResults('Please wait until Init finishes!', taStatusResults);
-    btInit.disabled = true;
-    /* Configuration of ExperienceSDK */
-    var reConfig = {
-        autoStart: false,
-        accountHash: '3TFXMS',
-        predictionPerSecondLimit: 2,
-    };
-    /* End of configuration of ExperienceSDK*/
-    /* Access camera stream */
+  //   /* End of access camera stream*/
+  //   /* Start ExperianceSDK */
+  //   reConfig.cameraStream = cameraStream;
+  //   window.Realeyesit.experienceSdk.init(reConfig);
 
-    /* End of access camera stream*/
-    /* Start ExperianceSDK */
-    reConfig.cameraStream = cameraStream;
-    window.Realeyesit.experienceSdk.init(reConfig);
-
-    /* Subscribe to facial expression detected event and error event available events */
-    window.Realeyesit.experienceSdk.error((err) => {
-        updateResults(' \n\n Error occurred: ' + JSON.stringify(err), taStatusResults);
-    });
-    /*Init mirror*/
-    video.setAttribute('playsinline', '');
-    video.playsinline = '';
-    video.setAttribute('muted', '');
-    video.controls = true;
-    video.muted = true;
-    video.autoplay = true;
-    video.srcObject = cameraStream;
-    const loadedMetadataHandler = () => {
-        this.video.play();
-    };
-    if (video.onloadedmetadata) {
-        video.onloadedmetadata = loadedMetadataHandler;
-    }
-    video.addEventListener('loadedmetadata', loadedMetadataHandler);
-    /* End of init mirror*/
-    /* Activate user interface */
-    divSdk.style.visibility = 'visible';
-  }
-        /* Controls */
-        async function stop() {
-            updateResults('Stop has been called!');
-            try {
-                window.Realeyesit.experienceSdk.stop(false);
-                btStart.disabled = false;
-                btStop.disabled = true;
-            } catch (error) {
-                updateResults(`Error ${error}`);
-            }
-        }
-        async function start() {
-            updateResults('Start has been called!');
-            try {
-                window.Realeyesit.experienceSdk.start();
-                btStart.disabled = true;
-                btStop.disabled = false;
-            } catch (error) {
-                updateResults(`Error ${error}`);
-            }
-        }
+  //   /* Subscribe to facial expression detected event and error event available events */
+  //   window.Realeyesit.experienceSdk.error((err) => {
+  //       updateResults(' \n\n Error occurred: ' + JSON.stringify(err), taStatusResults);
+  //   });
+  //   /*Init mirror*/
+  //   video.setAttribute('playsinline', '');
+  //   video.playsinline = '';
+  //   video.setAttribute('muted', '');
+  //   video.controls = true;
+  //   video.muted = true;
+  //   video.autoplay = true;
+  //   video.srcObject = cameraStream;
+  //   const loadedMetadataHandler = () => {
+  //       this.video.play();
+  //   };
+  //   if (video.onloadedmetadata) {
+  //       video.onloadedmetadata = loadedMetadataHandler;
+  //   }
+  //   video.addEventListener('loadedmetadata', loadedMetadataHandler);
+  //   /* End of init mirror*/
+  //   /* Activate user interface */
+  //   divSdk.style.visibility = 'visible';
+  // }
+  //       /* Controls */
+  //       async function stop() {
+  //           updateResults('Stop has been called!');
+  //           try {
+  //               window.Realeyesit.experienceSdk.stop(false);
+  //               btStart.disabled = false;
+  //               btStop.disabled = true;
+  //           } catch (error) {
+  //               updateResults(`Error ${error}`);
+  //           }
+  //       }
+  //       async function start() {
+  //           updateResults('Start has been called!');
+  //           try {
+  //               window.Realeyesit.experienceSdk.start();
+  //               btStart.disabled = true;
+  //               btStop.disabled = false;
+  //           } catch (error) {
+  //               updateResults(`Error ${error}`);
+  //           }
+  //       }
 
   var timeline = []; // this array stores the events we want to run in the experiment
   
@@ -594,47 +600,18 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
   };
 
-//   var debug = {
 
-//   type: 'survey-multi-choice',
-
-//   questions: [{
-
-//     prompt: 'Debug?',
-
-//     options: ['yes','no'],
-
-//     required: true
-
-//   }, ],
-
-//   button_label: label_next_button,
-//   on_finish: function(data) {
-
-//     var responses = JSON.parse(data.responses);
-
-//     var code = responses.Q0;
-
-//     if (code == 'yes') {
-//       debug_enabled = true
-//     } else {
-//       debug_enabled = false;
-//     } 
-    
-//     console.log("Debug enabled? " + debug_enabled)
-
-// }
 
 // };
 
-  var webcam_permission = {
+  // var webcam_permission = {
 
-    type: "custom-realeyes-plugin",
+  //   type: "custom-realeyes-plugin",
 
-    stimulus: 'Please enable facial expression recognition',
-    choices: ['Init SDK','Start','Stop']
+  //   stimulus: 'Please enable facial expression recognition',
+  //   choices: ['Init SDK','Start','Stop']
 
-  };
+  // };
 
 
 
@@ -1032,32 +1009,32 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
     on_start: function(data) {
 
-      var config = {
-        container: document.getElementsByClassName('jspsych-display-element')[0],
-        radius: 10,
-        maxOpacity: 1,
-        minOpacity: 0,
-        blur: .75
-      };
-      // create heatmap with configuration
+      // var config = {
+      //   container: document.getElementsByClassName('jspsych-display-element')[0],
+      //   radius: 10,
+      //   maxOpacity: 1,
+      //   minOpacity: 0,
+      //   blur: .75
+      // };
+      // // create heatmap with configuration
       
 
-      let heatMapData = []
+      // let heatMapData = []
 
-      for (let i = 0; i < gazeData.length; i++) {
-        heatMapData.push([Math.round(gazeData[i][0]),Math.round(gazeData[i][1])])
-      }    
+      // for (let i = 0; i < gazeData.length; i++) {
+      //   heatMapData.push([Math.round(gazeData[i][0]),Math.round(gazeData[i][1])])
+      // }    
 
 
-      // const result = countCoordinates(gazeData);
-      var heatmapInstance = h337.create(config);
+      // // const result = countCoordinates(gazeData);
+      // var heatmapInstance = h337.create(config);
 
-      heatmapInstance.setData({
-        min: 1,
-        max: 5,
-        data: countCoordinates(heatMapData)
-      });
-      heatmapInstance.repaint();
+      // heatmapInstance.setData({
+      //   min: 1,
+      //   max: 5,
+      //   data: countCoordinates(heatMapData)
+      // });
+      // heatmapInstance.repaint();
       
       var subjID = jsPsych.data.get().last(1).values()[0]['participantID'];
       var full_data = jsPsych.data.get();
@@ -1070,6 +1047,10 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
       // make an array that specifies the order of the object properties
       var arr = ['participantID','age','gender','block_i','trial_i','stim','signal','SSD','response','rt','correct','focus','Fullscreen',
       'time_elapsed','browser_name','browser_version','os_name','os_version','tablet','mobile','screen_resolution','window_resolution','positive_emotion_score','negative_emotion_score','attention_score'];
+
+      var eye_tracking_data_arr = ['participant_id','x','y'];
+
+
       new_arr = [] // we will fill this array with the ordered data
       function myFunction(item) { // this is function is called in the arr.forEach call below
         new_obj[item] = obj[item]
@@ -1083,9 +1064,36 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
         selected_data.values()[i] = new_obj; // insert the ordered values back in the jsPsych.data object
       }
       if (!online) {
-
         selected_data.localSave('csv', 'SST_data_' + subjID + '.csv');
 
+        // Convert data to CSV format
+        const csvHeader = 'x,y\n';
+        const csvRows = gazeData.map(row => `${Math.round(row[0])},${Math.round(row[1])}`).join('\n');
+        const csvContent = csvHeader + csvRows;
+
+        // Create a Blob with the CSV data
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        
+        // Create a link element to trigger the download
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'eye_tracking_data_' + subjID + '_.csv';
+        
+        // Append the link to the body and trigger the click event
+        document.body.appendChild(link);
+        link.click();
+        
+        // Clean up and remove the link element
+        document.body.removeChild(link);
+      } else {
+
+        data_row = 'x,y';
+        appendData('eye_tracking_data_' + subjID + '_.csv',data_row)
+
+        for (let i = 0; i < gazeData.length; i ++) {
+          new_data_row = `${gazeData[i][0]}, ${gazeData[i][1]}`
+          appendData('eye_tracking_data_' + subjID + '_.csv',new_data_row)
+        }
       }
 
     }
@@ -1252,25 +1260,25 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
   // finally, push all the procedures to the overall timeline
 
 
-  //   var pavlovia_init = {
-  //     type: "pavlovia",
-  //     command: "init"
-  // };
+    var pavlovia_init = {
+      type: "pavlovia",
+      command: "init"
+  };
 
-  // var pavlovia_finish = {
-  //   type: "pavlovia",
-  //   command: "finish"
-  // };
+  var pavlovia_finish = {
+    type: "pavlovia",
+    command: "finish"
+  };
 
 
 
   timeline.push(
-    // pavlovia_init,
+    pavlovia_init,
   start_procedure,
   start_webgazer,
    block_procedure, end_procedure
-  //,pavlovia_finish
-)
+  ,pavlovia_finish
+  )
 
 
 
@@ -1330,7 +1338,7 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
       // append a subset of the data each time a go or stop stimulus is shown (the custom-stop-signal-plugin)
 
       id_index = 2;
- // point in experiment when particpant id is manually entered. see 'start_timeline'
+      // point in experiment when particpant id is manually entered. see 'start_timeline'
       if (online) {
 
         var subjID = jsPsych.data.get().last(1).values()[0]['participantID'];
