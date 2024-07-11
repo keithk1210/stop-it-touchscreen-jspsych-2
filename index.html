@@ -21,6 +21,9 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
   <title>Stop Signal Task</title> <!-- defines a title in the browser tab -->
 
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"> </script>
+
+
   <script type="text/javascript" src="js/jspsych-6.0.5/jspsych.js"></script>
 
 
@@ -69,6 +72,12 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
     <script src="reExperienceSdk.min.js"></script>
   -->
 
+    <!--
+    <script src="https://codesdwncdn.realeyesit.com/experience-sdk/xp/release/1/reExperienceSdk.min.js"></script>
+  -->
+ 
+
+ 
   
   
 
@@ -89,7 +98,10 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
   // Initialize some important variables
 
   var cameraStream = null;
+  var mediaRecorder = null;
   var gazeData = [];
+  var recordedChunks = [];
+  const startTime = Date.now();
 
   function countCoordinates(pairs) {
     const counts = {};
@@ -130,6 +142,36 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
     alert("Failed to start WebGazer. Please check your camera and permissions.");
   }
 
+  function handleDataAvailable(event) {
+    console.log("Attempting to handle data with size: " + event.data.size);
+      if (event.data.size > 0) {
+          
+          recordedChunks.push(event.data);
+      }
+  }
+
+  function handleStop() {
+      // Combine recorded chunks into a single video file
+      
+      const recordedBlob = new Blob(recordedChunks, { type: 'video/webm' });
+      const videoUrl = URL.createObjectURL(recordedBlob);
+
+      // Create a link to download the video
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = videoUrl;
+      var subjID = jsPsych.data.get().last(1).values()[0]['participantID'];
+      a.download = 'recorded-video' + subjID + '.webm';
+      document.body.appendChild(a);
+      a.click();
+
+      // Clean up
+      window.URL.revokeObjectURL(videoUrl);
+      recordedChunks = [];
+      console.log("STOP HANDLED!")
+  }
+
+
   async function initializeCameraStream() {
     try {
       cameraStream = await navigator.mediaDevices.getUserMedia({
@@ -141,36 +183,17 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
           audio: false
       });
 
-      // const videoTrack = cameraStream.getVideoTracks()[0];
-      // const processor = new MediaStreamTrackProcessor(videoTrack);
-      // const generator = new MediaStreamTrackGenerator({ kind: 'video' });
+      // Setup MediaRecorder to record video
+      mediaRecorder = new MediaRecorder(cameraStream);
+      mediaRecorder.ondataavailable = handleDataAvailable;
+      mediaRecorder.onstop = handleStop;
 
-      // const reader = processor.readable.getReader();
-      // const writer = generator.writable.getWriter();
+      
 
-      // cameraStream = new MediaStream([generator]);
-
-      // async function processFrame() {
-      //     const { value: frame } = await reader.read();
-      //     if (frame) {
-      //         const canvas = new OffscreenCanvas(frame.displayHeight, frame.displayWidth);
-      //         const ctx = canvas.getContext('2d');
-
-      //         ctx.translate(canvas.width / 2, canvas.height / 2);
-      //         ctx.rotate(Math.PI / 2);
-      //         ctx.drawImage(frame, -frame.displayWidth / 2, -frame.displayHeight / 2);
-
-      //         const rotatedFrame = new VideoFrame(canvas, { timestamp: frame.timestamp });
-      //         writer.write(rotatedFrame);
-
-      //         frame.close();
-      //         rotatedFrame.close();
-
-      //         requestAnimationFrame(processFrame);
-      //     }
-      // }
-
-      // processFrame();
+      // Start recording when user allows access
+      mediaRecorder.start();
+      console.log("Created new mediaRecorder:")
+      console.log(mediaRecorder)
     } catch (error) {
       console.error('Error accessing camera: ', error);
     }
@@ -1009,6 +1032,8 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
     on_start: function(data) {
 
+      mediaRecorder.stop()
+
       // var config = {
       //   container: document.getElementsByClassName('jspsych-display-element')[0],
       //   radius: 10,
@@ -1046,7 +1071,7 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
       var d = selected_data.values() // get the data values
       // make an array that specifies the order of the object properties
       var arr = ['participantID','age','gender','block_i','trial_i','stim','signal','SSD','response','rt','correct','focus','Fullscreen',
-      'time_elapsed','browser_name','browser_version','os_name','os_version','tablet','mobile','screen_resolution','window_resolution','positive_emotion_score','negative_emotion_score','attention_score'];
+      'time_elapsed','browser_name','browser_version','os_name','os_version','tablet','mobile','screen_resolution','window_resolution','positive_emotion_score','negative_emotion_score','attention_score','timestamp'];
 
       var eye_tracking_data_arr = ['participant_id','x','y'];
 
@@ -1063,7 +1088,7 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
         arr.forEach(myFunction) // for each element in the array run my function
         selected_data.values()[i] = new_obj; // insert the ordered values back in the jsPsych.data object
       }
-      if (!online) {
+      if (true) {
         selected_data.localSave('csv', 'SST_data_' + subjID + '.csv');
 
         // Convert data to CSV format
@@ -1347,7 +1372,7 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
           data_row = "participantID,age,gender,block_i,trial_i,stim,signal,SSD,response,rt,correct," +
                         "focus,Fullscreen,time_elapsed,browser_name,browser_version,os_name,os_version," +
-                        "tablet,mobile,screen_resolution,window_resolution,positive_emotion_score,negative_emotion_score,attention_score\n"
+                        "tablet,mobile,screen_resolution,window_resolution,positive_emotion_score,negative_emotion_score,attention_score,timestamp\n"
           appendData('SST_data_'+ subjID +'.csv',data_row)
 
         } else if (data.trial_type == 'custom-stop-signal-plugin'){ // append data each stimulus
@@ -1356,7 +1381,7 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
                         data.stim + ',' + data.signal + ',' + data.SSD + ',' + data.response + ',' + data.rt + ',' + data.correct + ',' +
                         data.focus + ',' + data.Fullscreen + ',' + data.time_elapsed + ',' + data.browser_name + ',' +
                         data.browser_version + ',' + data.os_name + ',' + data.os_version + ',' + data.tablet + ',' + data.mobile + ',' +
-                        data.screen_resolution + ',' + data.window_resolution + ',' + data.positive_emotion_score + ',' + data.negative_emotion_score + ',' + data.attention_score + '\n'
+                        data.screen_resolution + ',' + data.window_resolution + ',' + data.positive_emotion_score + ',' + data.negative_emotion_score + ',' + data.attention_score + ',' + data.timestamp + '\n'
           appendData('SST_data_'+ subjID +'.csv',data_row)
 
         }

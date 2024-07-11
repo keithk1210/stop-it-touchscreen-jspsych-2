@@ -129,7 +129,8 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
         "button_press": response.button,
         "positive_emotion_score": 0,
         "negative_emotion_score": 0,
-        "attention_score": 0
+        "attention_score": 0,
+        "timestamp": Date.now() - startTime
       };
 
       // clear the display

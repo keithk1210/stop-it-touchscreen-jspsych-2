@@ -1,4 +1,3 @@
-
 /*!
  * 
  *  WebGazer.js: Democratizing Webcam Eye Tracking on the Browser
