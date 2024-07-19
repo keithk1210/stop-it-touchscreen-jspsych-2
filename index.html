@@ -103,6 +103,7 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
   var recordedChunks = [];
   const startTime = Date.now();
 
+  //function to count instances of a certain [x,y] coordinate
   function countCoordinates(pairs) {
     const counts = {};
 
@@ -142,62 +143,129 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
     alert("Failed to start WebGazer. Please check your camera and permissions.");
   }
 
+  async function initializeCameraStream() {
+    try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                width: { min: 320, ideal: 320 },
+                height: { min: 240, ideal: 240 },
+                facingMode: { ideal: "user" }
+            },
+            audio: false
+        });
+
+        mediaRecorder = new MediaRecorder(cameraStream);
+        mediaRecorder.ondataavailable = handleDataAvailable;
+        // mediaRecorder.onstop = handleStop;
+
+        mediaRecorder.onstart = () => {
+            console.log('MediaRecorder started');
+        };
+
+        mediaRecorder.onpause = () => {
+            console.log('MediaRecorder paused');
+        };
+
+        mediaRecorder.onresume = () => {
+            console.log('MediaRecorder resumed');
+        };
+
+        mediaRecorder.onerror = (event) => {
+            console.error('MediaRecorder error:', event.error);
+        };
+
+        
+        mediaRecorder.start(1000); // Request data every second
+        console.log("Created new mediaRecorder:", mediaRecorder);
+    } catch (error) {
+        console.error('Error accessing camera:', error);
+    }
+}
+
+  //event handler fo the mediaRecorder to store the video data.
   function handleDataAvailable(event) {
-    console.log("Attempting to handle data with size: " + event.data.size);
+      console.log("Attempting to handle data with size: " + event.data.size);
       if (event.data.size > 0) {
-          
           recordedChunks.push(event.data);
+          console.log('Data available:', event.data);
       }
   }
 
-  function handleStop() {
-      // Combine recorded chunks into a single video file
-      
-      const recordedBlob = new Blob(recordedChunks, { type: 'video/webm' });
-      const videoUrl = URL.createObjectURL(recordedBlob);
+//event handler for the mediaRecorder to stop the recording and download the video.
+function handleStop() {
+    const recordedBlob = new Blob(recordedChunks, { type: 'video/webm' });
+    const videoUrl = URL.createObjectURL(recordedBlob);
 
-      // Create a link to download the video
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = videoUrl;
-      var subjID = jsPsych.data.get().last(1).values()[0]['participantID'];
-      a.download = 'recorded-video' + subjID + '.webm';
-      document.body.appendChild(a);
-      a.click();
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = videoUrl;
+    console.log("Downloading this video... " + videoUrl);
+    var subjID = 'defaultID'; // Replace this with actual participantID if available
+    a.download = 'recorded-video' + subjID + '.webm';
+    document.body.appendChild(a);
+    a.click();
 
-      // Clean up
-      window.URL.revokeObjectURL(videoUrl);
-      recordedChunks = [];
-      console.log("STOP HANDLED!")
+    window.URL.revokeObjectURL(videoUrl);
+    recordedChunks = [];
+    console.log("STOP HANDLED!");
+
+    uploadVideo(recordedBlob);
+}
+
+
+function stopRecording() {
+    mediaRecorder.stop();
+}
+
+// Function to upload video to an S3 bucket.
+  async function uploadVideo(blob) {
+      const reader = new FileReader();
+      reader.onloadend = function() {
+          const arrayBuffer = reader.result;
+          const binaryData = new Uint8Array(arrayBuffer);
+
+          fetch('/upload/video', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/octet-stream'
+              },
+              body: binaryData
+          }).then(response => response.json())
+            .then(data => console.log('Video uploaded successfully:', data))
+            .catch(err => console.error('Error uploading video:', err));
+      };
+      reader.readAsArrayBuffer(blob);
   }
 
+  // Function to send data about reaction time to an S3 bucket.
+  async function uploadToLeaderboard(userID,responseTime) {
+    const data = {
+        userID: userID,
+        responseTime: responseTime
+    };
 
-  async function initializeCameraStream() {
     try {
-      cameraStream = await navigator.mediaDevices.getUserMedia({
-          video: {
-              width: { min: 320, ideal: 320 },
-              height: { min: 240, ideal: 240 },
-              facingMode: { ideal: "user" }
-          },
-          audio: false
-      });
+        const response = await fetch('/upload/leaderboard', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
 
-      // Setup MediaRecorder to record video
-      mediaRecorder = new MediaRecorder(cameraStream);
-      mediaRecorder.ondataavailable = handleDataAvailable;
-      mediaRecorder.onstop = handleStop;
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
 
-      
-
-      // Start recording when user allows access
-      mediaRecorder.start();
-      console.log("Created new mediaRecorder:")
-      console.log(mediaRecorder)
+        const responseData = await response.json();
+        console.log('Data uploaded successfully:', responseData);
     } catch (error) {
-      console.error('Error accessing camera: ', error);
+        console.error('Error sending data:', error);
     }
   }
+
+
+ 
 
   // Call function to initialize camera stream
 
@@ -219,76 +287,9 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
     }).begin(onFail,cameraStream);
 
   }
-  
-  
-  //Stop using 
-  // async function init() {
-  //   await initializeCameraStream();
-  //   updateResults('Init has been called!', taStatusResults);
-  //   updateResults('Please wait until Init finishes!', taStatusResults);
-  //   btInit.disabled = true;
-  //   /* Configuration of ExperienceSDK */
-  //   var reConfig = {
-  //       autoStart: false,
-  //       accountHash: '3TFXMS',
-  //       predictionPerSecondLimit: 2,
-  //   };
-  //   /* End of configuration of ExperienceSDK*/
-  //   /* Access camera stream */
-
-  //   /* End of access camera stream*/
-  //   /* Start ExperianceSDK */
-  //   reConfig.cameraStream = cameraStream;
-  //   window.Realeyesit.experienceSdk.init(reConfig);
-
-  //   /* Subscribe to facial expression detected event and error event available events */
-  //   window.Realeyesit.experienceSdk.error((err) => {
-  //       updateResults(' \n\n Error occurred: ' + JSON.stringify(err), taStatusResults);
-  //   });
-  //   /*Init mirror*/
-  //   video.setAttribute('playsinline', '');
-  //   video.playsinline = '';
-  //   video.setAttribute('muted', '');
-  //   video.controls = true;
-  //   video.muted = true;
-  //   video.autoplay = true;
-  //   video.srcObject = cameraStream;
-  //   const loadedMetadataHandler = () => {
-  //       this.video.play();
-  //   };
-  //   if (video.onloadedmetadata) {
-  //       video.onloadedmetadata = loadedMetadataHandler;
-  //   }
-  //   video.addEventListener('loadedmetadata', loadedMetadataHandler);
-  //   /* End of init mirror*/
-  //   /* Activate user interface */
-  //   divSdk.style.visibility = 'visible';
-  // }
-  //       /* Controls */
-  //       async function stop() {
-  //           updateResults('Stop has been called!');
-  //           try {
-  //               window.Realeyesit.experienceSdk.stop(false);
-  //               btStart.disabled = false;
-  //               btStop.disabled = true;
-  //           } catch (error) {
-  //               updateResults(`Error ${error}`);
-  //           }
-  //       }
-  //       async function start() {
-  //           updateResults('Start has been called!');
-  //           try {
-  //               window.Realeyesit.experienceSdk.start();
-  //               btStart.disabled = true;
-  //               btStop.disabled = false;
-  //           } catch (error) {
-  //               updateResults(`Error ${error}`);
-  //           }
-  //       }
 
   var timeline = []; // this array stores the events we want to run in the experiment
   
-
   var trial_ind = 1; // trial indexing variable starts at 1 for convenience
 
   var block_ind = 0; // block indexing variables: block 0 is considered to be the practice block
@@ -322,8 +323,6 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
   // define the images to be loaded, the actual preloading occurs in the jsPsych.init function at the bottom
 
   var pre_load_stimuli = [fix_stim, go_stim1, go_stim2, stop_stim1, stop_stim2];
-
-
 
   /* #########################################################################
 
@@ -1088,7 +1087,7 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
         arr.forEach(myFunction) // for each element in the array run my function
         selected_data.values()[i] = new_obj; // insert the ordered values back in the jsPsych.data object
       }
-      if (true) {
+      if (!online) {
         selected_data.localSave('csv', 'SST_data_' + subjID + '.csv');
 
         // Convert data to CSV format
@@ -1121,6 +1120,10 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
         }
       }
 
+      const all_trials = jsPsych.data.get().filter({trial_type: 'custom-stop-signal-plugin'});
+
+      handleStop()
+      uploadToLeaderboard(subjID, Math.round(all_trials.select('rt').subset(function(x){ return x > 0; }).mean()));
     }
 
   };
