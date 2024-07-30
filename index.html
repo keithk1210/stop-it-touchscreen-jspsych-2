@@ -55,7 +55,7 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
   <script src="js/sprintf.js"></script> <!-- format variables in a string, used for customizable feedback strings in which the variables are not yet declared -->
   <script src="js/custom-stop-signal-plugin.js"></script> <!-- custom plugin for the main stop-signal trial based on the image-keyboard-response plugin -->
-
+  <script src="js/custom-goodbye-plugin.js"></script> 
   <!--
   <script src="js/custom-realeyes-plugin.js"></script> <!-- custom plugin for the main stop-signal trial based on the image-keyboard-response plugin -->
   -->
@@ -89,6 +89,8 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
 <script>
 
+
+
   /* #########################################################################
 
   Initialize variables
@@ -102,6 +104,18 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
   var gazeData = [];
   var recordedChunks = [];
   const startTime = Date.now();
+
+  function isDirectory(path) {
+      if (path.split("/").length > 1 && path.split("/")[1].length > 0) {
+          return true;
+      } else {
+          return false;
+      }
+  }
+
+  function getDirectory(path) {
+      return path.split("/")[0];
+  }
 
   //function to count instances of a certain [x,y] coordinate
   function countCoordinates(pairs) {
@@ -137,6 +151,8 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
     return dataPoints;
   }
+
+  
 
   function onFail() {
     console.error("Failed to start WebGazer. No stream available.");
@@ -184,38 +200,38 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
   //event handler fo the mediaRecorder to store the video data.
   function handleDataAvailable(event) {
-      console.log("Attempting to handle data with size: " + event.data.size);
+      //console.log("Attempting to handle data with size: " + event.data.size);
       if (event.data.size > 0) {
           recordedChunks.push(event.data);
-          console.log('Data available:', event.data);
+          //console.log('Data available:', event.data);
       }
   }
 
-//event handler for the mediaRecorder to stop the recording and download the video.
-function handleStop() {
-    const recordedBlob = new Blob(recordedChunks, { type: 'video/webm' });
-    const videoUrl = URL.createObjectURL(recordedBlob);
+  //event handler for the mediaRecorder to stop the recording and download the video.
+  function handleStop() {
+      const recordedBlob = new Blob(recordedChunks, { type: 'video/webm' });
+      const videoUrl = URL.createObjectURL(recordedBlob);
 
-    const a = document.createElement('a');
-    a.style.display = 'none';
-    a.href = videoUrl;
-    console.log("Downloading this video... " + videoUrl);
-    var subjID = 'defaultID'; // Replace this with actual participantID if available
-    a.download = 'recorded-video' + subjID + '.webm';
-    document.body.appendChild(a);
-    a.click();
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = videoUrl;
+      console.log("Downloading this video... " + videoUrl);
+      var subjID = 'defaultID'; // Replace this with actual participantID if available
+      a.download = 'recorded-video' + subjID + '.webm';
+      document.body.appendChild(a);
+      //a.click();
 
-    window.URL.revokeObjectURL(videoUrl);
-    recordedChunks = [];
-    console.log("STOP HANDLED!");
+      window.URL.revokeObjectURL(videoUrl);
+      recordedChunks = [];
+      console.log("STOP HANDLED!");
 
-    uploadVideo(recordedBlob);
-}
+      uploadVideo(recordedBlob);
+  }
 
 
-function stopRecording() {
-    mediaRecorder.stop();
-}
+  function stopRecording() {
+      mediaRecorder.stop();
+  }
 
 // Function to upload video to an S3 bucket.
   async function uploadVideo(blob) {
@@ -261,6 +277,131 @@ function stopRecording() {
         console.log('Data uploaded successfully:', responseData);
     } catch (error) {
         console.error('Error sending data:', error);
+    }
+  }
+
+  async function uploadData(userID,csvString) {
+
+    const data = {
+        userID: userID,
+        csvString: csvString
+    };
+
+    try {
+        const response = await fetch('/upload/data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const responseData = await response.json();
+        console.log('Data uploaded successfully:', responseData);
+    } catch (error) {
+        console.error('Error sending data:', error);
+    }
+  }
+
+  function accessPromiseResults(promises) {
+
+    const leaderboardBody = document.getElementById("leaderboard").getElementsByTagName('tbody')[0];
+    leaderboardBody.innerHTML = '';
+
+    return Promise.allSettled(promises).then(results => {
+        // Filter out only the fulfilled promises and extract their values
+        return results
+            .filter(result => result.status === 'fulfilled')
+            .map(result => result.value).sort((a, b) => a.responseTime - b.responseTime).forEach((user,index) => {
+                //users.sort((a, b) => a.reactionTime - b.reactionTime);
+
+
+                // Loop through the top 10 users or available users
+                // const topUsers = users.slice(0, 10);
+                // topUsers.forEach((user, index) => {
+                    // Create a new row
+                    console.log("\tUSER: ",user,"PLACE: ",index);
+                    const newRow = leaderboardBody.insertRow();
+
+                    // Insert cells for place, userID, and reaction time
+                    const cellPlace = newRow.insertCell(0);
+                    const cellUserID = newRow.insertCell(1);
+                    const cellReactionTime = newRow.insertCell(2);
+
+                    // Set the text content for each cell
+                    cellPlace.textContent = index + 1; // Place
+                    cellUserID.textContent = user.userID; // UserID
+                    cellReactionTime.textContent = user.responseTime; // Reaction Time
+                //});
+
+
+            });
+    });
+  }
+
+  function getObjectFromS3(bucket, key) {
+    const url = `http://localhost:3000/s3/get-object/bucket/${bucket}/key/${encodeURIComponent(key)}`;
+    
+    return fetch(url)
+        .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+        })
+        .then(data => {
+        console.log('Data received:', data);
+        // Handle the received data
+        return data;  // Return the data from this promise
+        })
+        .catch(error => {
+        console.error('Error fetching object:', error);
+        // Handle the error
+        throw error; // Re-throw the error for the caller to handle
+    });
+  }
+
+
+  async function fetchS3ObjectList() {
+
+    let users = [];
+
+    try {
+        const response = await fetch('http://localhost:3000/s3/list-objects');
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const responseData = await response.json();
+        console.log('Successfully got objects from S3 buckets: ', responseData);
+        for (elem in responseData.data) {
+            if (isDirectory(responseData.data[elem].Key)) {
+                let directory =  getDirectory(responseData.data[elem].Key);
+                if (directory == 'leaderboard') {
+                    try {
+                        // Clear previous messages and data
+
+                        const bucketName = 'cheesebucketlehighu'; // Replace with your actual bucket name
+                        const objectKey = responseData.data[elem].Key;     // Replace with your actual JSON object key
+
+                        users.push(getObjectFromS3(bucketName, objectKey));
+                    } catch (error) {
+                        console.error('Error fetching JSON object:', error);
+                        message.textContent = `Error fetching JSON object: ${error.message}`;
+                    }
+                }
+                
+            }
+        }
+        console.log("USERS.length ",users.length)
+        accessPromiseResults(users);
+    } catch (error) {
+        console.error('Error fetching S3 object list:', error);
     }
   }
 
@@ -344,8 +485,6 @@ function stopRecording() {
 
   signalArray[ngostop-1] = ('stop'); // stop-signal trials
 
-
-
   // create factorial design from choices(2) and signal(nstim)
 
   var factors = {
@@ -357,8 +496,6 @@ function stopRecording() {
   };
 
   var design = jsPsych.randomization.factorial(factors, 1);
-
-
 
   // modify the design to make it compatible with the custom stop signal plugin
 
@@ -1023,7 +1160,7 @@ function stopRecording() {
 
   var goodbye = {
 
-    type: "html-button-response",
+    type: "custom-goodbye-plugin",
 
     stimulus: end_message,
 
@@ -1031,100 +1168,119 @@ function stopRecording() {
 
     on_start: function(data) {
 
-      mediaRecorder.stop()
+      //mediaRecorder.stop()
 
-      // var config = {
-      //   container: document.getElementsByClassName('jspsych-display-element')[0],
-      //   radius: 10,
-      //   maxOpacity: 1,
-      //   minOpacity: 0,
-      //   blur: .75
-      // };
-      // // create heatmap with configuration
-      
+      for (let i = 0; i < 20; i++) {
+        jsPsych.data.write({
+          participantID: `P${Math.floor(Math.random() * 9000) + 1000}`,           // Simulated participant ID
+          age: Math.floor(Math.random() * (70 - 18 + 1)) + 18, // Random age between 18 and 70
+          gender: ['male', 'female', 'non-binary'][Math.floor(Math.random() * 3)], // Random gender
+          block_i: Math.floor(Math.random() * 5) + 1,  // Random block index between 1 and 5
+          trial_i: Math.floor(Math.random() * 50) + 1, // Random trial index between 1 and 50
+          stim: `stimulus_${Math.floor(Math.random() * 10) + 1}`, // Random stimulus label
+          signal: Math.random() < 0.5 ? 'go' : 'stop', // Random signal (either 'go' or 'stop')
+          SSD: Math.floor(Math.random() * 500) + 200,  // Random Stop Signal Delay between 200 and 700 ms
+          response: Math.random() < 0.5 ? 'left' : 'right', // Random response ('left' or 'right')
+          rt: Math.floor(Math.random() * 1500) + 200,  // Random reaction time between 200 and 1700 ms
+          correct: Math.random() < 0.8,                // 80% chance of being correct
+          focus: Math.random() < 0.9,                  // 90% chance of being focused
+          Fullscreen: Math.random() < 0.8,             // 80% chance of being in fullscreen
+          time_elapsed: Math.floor(Math.random() * 600000), // Random time elapsed in milliseconds (up to 10 minutes)
+          browser_name: ['Chrome', 'Firefox', 'Safari', 'Edge'][Math.floor(Math.random() * 4)], // Random browser
+          browser_version: `${Math.floor(Math.random() * 80) + 20}.0`, // Random browser version between 20 and 100
+          os_name: ['Windows', 'macOS', 'Linux', 'Android', 'iOS'][Math.floor(Math.random() * 5)], // Random OS
+          os_version: `${Math.floor(Math.random() * 15) + 1}.0`, // Random OS version between 1 and 15
+          tablet: Math.random() < 0.1,                 // 10% chance of being on a tablet
+          mobile: Math.random() < 0.3,                 // 30% chance of being on a mobile device
+          screen_resolution: `${Math.floor(Math.random() * 400) + 800}x${Math.floor(Math.random() * 400) + 600}`, // Random screen resolution
+          window_resolution: `${Math.floor(Math.random() * 400) + 800}x${Math.floor(Math.random() * 400) + 600}`, // Random window resolution
+          positive_emotion_score: Math.floor(Math.random() * 101), // Random positive emotion score between 0 and 100
+          negative_emotion_score: Math.floor(Math.random() * 101), // Random negative emotion score between 0 and 100
+          attention_score: Math.floor(Math.random() * 101),        // Random attention score between 0 and 100
+          timestamp: new Date().toISOString(),                      // Current timestamp in ISO format
+          trial_type: 'custom-stop-signal-plugin'                       // Custom trial type
+        });
+      }
 
-      // let heatMapData = []
+      console.log(jsPsych.data.get().values());
 
-      // for (let i = 0; i < gazeData.length; i++) {
-      //   heatMapData.push([Math.round(gazeData[i][0]),Math.round(gazeData[i][1])])
-      // }    
-
-
-      // // const result = countCoordinates(gazeData);
-      // var heatmapInstance = h337.create(config);
-
-      // heatmapInstance.setData({
-      //   min: 1,
-      //   max: 5,
-      //   data: countCoordinates(heatMapData)
-      // });
-      // heatmapInstance.repaint();
-      
       var subjID = jsPsych.data.get().last(1).values()[0]['participantID'];
       var full_data = jsPsych.data.get();
       var ignore_columns = ['raw_rt','trial_type','first_stimulus','second_stimulus','onset_of_first_stimulus',
         'onset_of_second_stimulus','key_press','correct_response','trial_index','internal_node_id'];
-      var rows = {trial_type: 'custom-stop-signal-plugin'}; // we are only interested in our main stimulus, not fixation, feedback etc.
+      //var rows = {trial_type: 'custom-stop-signal-plugin'}; // we are only interested in our main stimulus, not fixation, feedback etc.
+      var rows = {trial_type: 'custom-goodbye-plugin'}; // we are only interested in our main stimulus, not fixation, feedback etc.
+
       var selected_data = jsPsych.data.get().filter(rows).ignore(ignore_columns);
       // the next piece of codes orders the columns of the data file
       var d = selected_data.values() // get the data values
+
+      console.log(selected_data.csv());
+
+      uploadData( subjID ,selected_data.csv());
+
       // make an array that specifies the order of the object properties
-      var arr = ['participantID','age','gender','block_i','trial_i','stim','signal','SSD','response','rt','correct','focus','Fullscreen',
-      'time_elapsed','browser_name','browser_version','os_name','os_version','tablet','mobile','screen_resolution','window_resolution','positive_emotion_score','negative_emotion_score','attention_score','timestamp'];
 
-      var eye_tracking_data_arr = ['participant_id','x','y'];
+      
 
+      // var arr = ['participantID','age','gender','block_i','trial_i','stim','signal','SSD','response','rt','correct','focus','Fullscreen',
+      // 'time_elapsed','browser_name','browser_version','os_name','os_version','tablet','mobile','screen_resolution','window_resolution','positive_emotion_score','negative_emotion_score','attention_score','timestamp'];
 
-      new_arr = [] // we will fill this array with the ordered data
-      function myFunction(item) { // this is function is called in the arr.forEach call below
-        new_obj[item] = obj[item]
-        return new_obj
-      }
-      // do it for the whole data array
-      for (i = 0; i < d.length; i++) {
-        obj = d[i]; // get one row of data
-        new_obj = {};
-        arr.forEach(myFunction) // for each element in the array run my function
-        selected_data.values()[i] = new_obj; // insert the ordered values back in the jsPsych.data object
-      }
-      if (!online) {
-        selected_data.localSave('csv', 'SST_data_' + subjID + '.csv');
+      // var eye_tracking_data_arr = ['participant_id','x','y'];
 
-        // Convert data to CSV format
-        const csvHeader = 'x,y\n';
-        const csvRows = gazeData.map(row => `${Math.round(row[0])},${Math.round(row[1])}`).join('\n');
-        const csvContent = csvHeader + csvRows;
+      // new_arr = [] // we will fill this array with the ordered data
+      // function myFunction(item) { // this is function is called in the arr.forEach call below
+      //   new_obj[item] = obj[item]
+      //   return new_obj
+      // }
+      // // do it for the whole data array
+      // for (i = 0; i < d.length; i++) {
+      //   obj = d[i]; // get one row of data
+      //   new_obj = {};
+      //   arr.forEach(myFunction) // for each element in the array run my function
+      //   selected_data.values()[i] = new_obj; // insert the ordered values back in the jsPsych.data object
+      // }
+      // if (!online) {
+      //   selected_data.localSave('csv', 'SST_data_' + subjID + '.csv');
 
-        // Create a Blob with the CSV data
-        const blob = new Blob([csvContent], { type: 'text/csv' });
+      //   // Convert data to CSV format
+      //   const csvHeader = 'x,y\n';
+      //   const csvRows = gazeData.map(row => `${Math.round(row[0])},${Math.round(row[1])}`).join('\n');
+      //   const csvContent = csvHeader + csvRows;
+
+      //   // Create a Blob with the CSV data
+      //   const blob = new Blob([csvContent], { type: 'text/csv' });
         
-        // Create a link element to trigger the download
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'eye_tracking_data_' + subjID + '_.csv';
+      //   // Create a link element to trigger the download
+      //   const link = document.createElement('a');
+      //   link.href = URL.createObjectURL(blob);
+      //   link.download = 'eye_tracking_data_' + subjID + '_.csv';
         
-        // Append the link to the body and trigger the click event
-        document.body.appendChild(link);
-        link.click();
+      //   // Append the link to the body and trigger the click event
+      //   document.body.appendChild(link);
+      //   link.click();
         
-        // Clean up and remove the link element
-        document.body.removeChild(link);
-      } else {
+      //   // Clean up and remove the link element
+      //   document.body.removeChild(link);
+      // } else {
 
-        data_row = 'x,y';
-        appendData('eye_tracking_data_' + subjID + '_.csv',data_row)
+      //   data_row = 'x,y';
+      //   appendData('eye_tracking_data_' + subjID + '_.csv',data_row)
 
-        for (let i = 0; i < gazeData.length; i ++) {
-          new_data_row = `${gazeData[i][0]}, ${gazeData[i][1]}`
-          appendData('eye_tracking_data_' + subjID + '_.csv',new_data_row)
-        }
+      //   for (let i = 0; i < gazeData.length; i ++) {
+      //     new_data_row = `${gazeData[i][0]}, ${gazeData[i][1]}`
+      //     appendData('eye_tracking_data_' + subjID + '_.csv',new_data_row)
+      //   }
+      // }
+
+      // const all_trials = jsPsych.data.get().filter({trial_type: 'custom-stop-signal-plugin'});
+
+      // handleStop()
+
+      // uploadToLeaderboard(subjID, Math.round(all_trials.select('rt').subset(function(x){ return x > 0; }).mean()));
+      // fetchS3ObjectList();
+
       }
-
-      const all_trials = jsPsych.data.get().filter({trial_type: 'custom-stop-signal-plugin'});
-
-      handleStop()
-      uploadToLeaderboard(subjID, Math.round(all_trials.select('rt').subset(function(x){ return x > 0; }).mean()));
-    }
 
   };
 
@@ -1323,23 +1479,23 @@ function stopRecording() {
 
   function appendData(filename, filedata) {
 
-    $.ajax({ // make sure jquery-1.7.1.min.js is loaded in the html header for this to work
+    // $.ajax({ // make sure jquery-1.7.1.min.js is loaded in the html header for this to work
 
-      type: 'post',
+    //   type: 'post',
 
-      cache: false,
+    //   cache: false,
 
-      url: 'php/save_data_append.php', // IMPORTANT: change the php script to link to the directory of your server where you want to store the data!
+    //   url: 'php/save_data_append.php', // IMPORTANT: change the php script to link to the directory of your server where you want to store the data!
 
-      data: {
+    //   data: {
 
-        filename: filename,
+    //     filename: filename,
+ 
+    //     filedata: filedata
 
-        filedata: filedata
+    //   },
 
-      },
-
-    });
+    // });
 
   };
 
@@ -1350,6 +1506,7 @@ function stopRecording() {
   jsPsych.init({
 
     timeline: timeline,
+    //[goodbye],
 
     preload_images: pre_load_stimuli,
 

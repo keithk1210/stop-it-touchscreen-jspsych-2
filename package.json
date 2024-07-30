@@ -1,9 +1,9 @@
 {
-    "name": "webgazer-www",
-    "version": "3.3.0",
+    "name": "stop-it-touchscreen-jspsych-2",
+    "version": "1.0.0",
     "repository": {
         "type": "git",
-        "url": "https://github.com/brownhci/WebGazer.git"
+        "url": "https://github.com/keithk1210/stop-it-touchscreen-jspsych-2"
     },
     "scripts": {
         "start-server": "node server.js",
