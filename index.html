@@ -345,7 +345,7 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
   }
 
   function getObjectFromS3(bucket, key) {
-    const url = `http://localhost:3000/s3/get-object/bucket/${bucket}/key/${encodeURIComponent(key)}`;
+    const url = `/s3/get-object/bucket/${bucket}/key/${encodeURIComponent(key)}`;
     
     return fetch(url)
         .then(response => {
@@ -372,7 +372,7 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
     let users = [];
 
     try {
-        const response = await fetch('http://localhost:3000/s3/list-objects');
+        const response = await fetch('/s3/list-objects');
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
