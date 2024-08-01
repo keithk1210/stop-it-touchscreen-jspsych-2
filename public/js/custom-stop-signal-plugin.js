@@ -86,10 +86,10 @@ jsPsych.plugins["custom-stop-signal-plugin"] = (function() {
 
     var new_html =  
     `<img src="` + trial.stimulus1 +`" class="stim-img">
-    <img src="` + car_path+`" alt="Moving Image" id="moving-image">`;
+    <img src="` + car_path+`" alt="Moving Image" id="stable-car">`;
     var new_html_2 = 
     `<img src="` + trial.stimulus2 +`" class="stim-img">
-    <img src="` + car_path+`" alt="Moving Image" id="moving-image">`;
+    <img src="` + car_path+`" alt="Moving Image" id="stable-car">`;
 
     // add the road, and car to the html.
     display_element.innerHTML = fix

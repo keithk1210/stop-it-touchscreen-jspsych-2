@@ -49,6 +49,7 @@ var welcome_message = ['<p>Welcome to the experiment.</p>' + '<p>Press "Next" to
 var not_supported_message = ['<p>This experiment requires the Chrome or Firefox webbrowser.</p>'];
 var subjID_instructions = "Enter your participant ID."
 var age_instructions = "Enter your age."
+var username_instructions = "Enter your username."
 var gender_instructions = "Choose your gender."
 var gender_options = ['Female','Male', 'Other', 'Prefer not to say']
 var text_at_start_block = '<p>Press the button to begin.</p>'

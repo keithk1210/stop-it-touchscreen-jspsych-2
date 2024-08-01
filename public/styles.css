@@ -47,17 +47,16 @@ body, html {
 
 #moving-image {
     position: absolute;
-    bottom: 0;
+    bottom: 25%;
     left: 50%;
     transform: translateX(-50%) scale(.75);
-    animation: moveImage linear infinite;
 }
 
 #stable-car {
     position: absolute;
     bottom: 0;
     left: 50%;
-    transform: translateX(-50%) ;
+    transform: translateX(-50%) scale(.75) ;
 }
 
 #btn-container {
@@ -84,4 +83,8 @@ body, html {
 #webgazerVideoContainer {
     bottom: 0px !important;
     top: auto !important;
+}
+
+#webgazerDot {
+    display: none !important;
 }

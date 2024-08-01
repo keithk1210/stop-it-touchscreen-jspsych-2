@@ -254,8 +254,9 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
   }
 
   // Function to send data about reaction time to an S3 bucket.
-  async function uploadToLeaderboard(userID,responseTime) {
+  async function uploadToLeaderboard(username,userID,responseTime) {
     const data = {
+        username: username,
         userID: userID,
         responseTime: responseTime
     };
@@ -334,7 +335,7 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
                     // Set the text content for each cell
                     cellPlace.textContent = index + 1; // Place
-                    cellUserID.textContent = user.userID; // UserID
+                    cellUserID.textContent = user.username; // UserID
                     cellReactionTime.textContent = user.responseTime; // Reaction Time
                 //});
 
@@ -418,7 +419,7 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
     console.log(cameraStream)
     webgazer.setGazeListener(function(data, elapsedTime) {
         if (data == null) {
-            console.log("No data to print :(");
+            //console.log("No data to print :(");
             return;
         }
         var xprediction = data.x; // these x coordinates are relative to the viewport
@@ -721,6 +722,36 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
     }
 
   };
+
+  var username = {
+
+  type: 'survey-text',
+
+  questions: [{
+
+    prompt: username_instructions,
+
+    required: true
+
+  }, ],
+
+  button_label: label_next_button,
+  on_finish: function(data) {
+
+    var responses = JSON.parse(data.responses);
+
+    var code = responses.Q0;
+
+    jsPsych.data.addProperties({
+
+      username: code
+
+    });
+
+  }
+
+  };
+
 
 
 
@@ -1170,46 +1201,47 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
 
       //mediaRecorder.stop()
 
-      for (let i = 0; i < 20; i++) {
-        jsPsych.data.write({
-          participantID: `P${Math.floor(Math.random() * 9000) + 1000}`,           // Simulated participant ID
-          age: Math.floor(Math.random() * (70 - 18 + 1)) + 18, // Random age between 18 and 70
-          gender: ['male', 'female', 'non-binary'][Math.floor(Math.random() * 3)], // Random gender
-          block_i: Math.floor(Math.random() * 5) + 1,  // Random block index between 1 and 5
-          trial_i: Math.floor(Math.random() * 50) + 1, // Random trial index between 1 and 50
-          stim: `stimulus_${Math.floor(Math.random() * 10) + 1}`, // Random stimulus label
-          signal: Math.random() < 0.5 ? 'go' : 'stop', // Random signal (either 'go' or 'stop')
-          SSD: Math.floor(Math.random() * 500) + 200,  // Random Stop Signal Delay between 200 and 700 ms
-          response: Math.random() < 0.5 ? 'left' : 'right', // Random response ('left' or 'right')
-          rt: Math.floor(Math.random() * 1500) + 200,  // Random reaction time between 200 and 1700 ms
-          correct: Math.random() < 0.8,                // 80% chance of being correct
-          focus: Math.random() < 0.9,                  // 90% chance of being focused
-          Fullscreen: Math.random() < 0.8,             // 80% chance of being in fullscreen
-          time_elapsed: Math.floor(Math.random() * 600000), // Random time elapsed in milliseconds (up to 10 minutes)
-          browser_name: ['Chrome', 'Firefox', 'Safari', 'Edge'][Math.floor(Math.random() * 4)], // Random browser
-          browser_version: `${Math.floor(Math.random() * 80) + 20}.0`, // Random browser version between 20 and 100
-          os_name: ['Windows', 'macOS', 'Linux', 'Android', 'iOS'][Math.floor(Math.random() * 5)], // Random OS
-          os_version: `${Math.floor(Math.random() * 15) + 1}.0`, // Random OS version between 1 and 15
-          tablet: Math.random() < 0.1,                 // 10% chance of being on a tablet
-          mobile: Math.random() < 0.3,                 // 30% chance of being on a mobile device
-          screen_resolution: `${Math.floor(Math.random() * 400) + 800}x${Math.floor(Math.random() * 400) + 600}`, // Random screen resolution
-          window_resolution: `${Math.floor(Math.random() * 400) + 800}x${Math.floor(Math.random() * 400) + 600}`, // Random window resolution
-          positive_emotion_score: Math.floor(Math.random() * 101), // Random positive emotion score between 0 and 100
-          negative_emotion_score: Math.floor(Math.random() * 101), // Random negative emotion score between 0 and 100
-          attention_score: Math.floor(Math.random() * 101),        // Random attention score between 0 and 100
-          timestamp: new Date().toISOString(),                      // Current timestamp in ISO format
-          trial_type: 'custom-stop-signal-plugin'                       // Custom trial type
-        });
-      }
+      // for (let i = 0; i < 20; i++) {
+      //   jsPsych.data.write({
+      //     participantID: `P${Math.floor(Math.random() * 9000) + 1000}`,           // Simulated participant ID
+      //     age: Math.floor(Math.random() * (70 - 18 + 1)) + 18, // Random age between 18 and 70
+      //     gender: ['male', 'female', 'non-binary'][Math.floor(Math.random() * 3)], // Random gender
+      //     block_i: Math.floor(Math.random() * 5) + 1,  // Random block index between 1 and 5
+      //     trial_i: Math.floor(Math.random() * 50) + 1, // Random trial index between 1 and 50
+      //     stim: `stimulus_${Math.floor(Math.random() * 10) + 1}`, // Random stimulus label
+      //     signal: Math.random() < 0.5 ? 'go' : 'stop', // Random signal (either 'go' or 'stop')
+      //     SSD: Math.floor(Math.random() * 500) + 200,  // Random Stop Signal Delay between 200 and 700 ms
+      //     response: Math.random() < 0.5 ? 'left' : 'right', // Random response ('left' or 'right')
+      //     rt: Math.floor(Math.random() * 1500) + 200,  // Random reaction time between 200 and 1700 ms
+      //     correct: Math.random() < 0.8,                // 80% chance of being correct
+      //     focus: Math.random() < 0.9,                  // 90% chance of being focused
+      //     Fullscreen: Math.random() < 0.8,             // 80% chance of being in fullscreen
+      //     time_elapsed: Math.floor(Math.random() * 600000), // Random time elapsed in milliseconds (up to 10 minutes)
+      //     browser_name: ['Chrome', 'Firefox', 'Safari', 'Edge'][Math.floor(Math.random() * 4)], // Random browser
+      //     browser_version: `${Math.floor(Math.random() * 80) + 20}.0`, // Random browser version between 20 and 100
+      //     os_name: ['Windows', 'macOS', 'Linux', 'Android', 'iOS'][Math.floor(Math.random() * 5)], // Random OS
+      //     os_version: `${Math.floor(Math.random() * 15) + 1}.0`, // Random OS version between 1 and 15
+      //     tablet: Math.random() < 0.1,                 // 10% chance of being on a tablet
+      //     mobile: Math.random() < 0.3,                 // 30% chance of being on a mobile device
+      //     screen_resolution: `${Math.floor(Math.random() * 400) + 800}x${Math.floor(Math.random() * 400) + 600}`, // Random screen resolution
+      //     window_resolution: `${Math.floor(Math.random() * 400) + 800}x${Math.floor(Math.random() * 400) + 600}`, // Random window resolution
+      //     positive_emotion_score: Math.floor(Math.random() * 101), // Random positive emotion score between 0 and 100
+      //     negative_emotion_score: Math.floor(Math.random() * 101), // Random negative emotion score between 0 and 100
+      //     attention_score: Math.floor(Math.random() * 101),        // Random attention score between 0 and 100
+      //     timestamp: new Date().toISOString(),                      // Current timestamp in ISO format
+      //     trial_type: 'custom-stop-signal-plugin'                       // Custom trial type
+      //   });
+      // }
 
       console.log(jsPsych.data.get().values());
 
       var subjID = jsPsych.data.get().last(1).values()[0]['participantID'];
+      var username = jsPsych.data.get().last(1).values()[0]['username'];
       var full_data = jsPsych.data.get();
       var ignore_columns = ['raw_rt','trial_type','first_stimulus','second_stimulus','onset_of_first_stimulus',
         'onset_of_second_stimulus','key_press','correct_response','trial_index','internal_node_id'];
       //var rows = {trial_type: 'custom-stop-signal-plugin'}; // we are only interested in our main stimulus, not fixation, feedback etc.
-      var rows = {trial_type: 'custom-goodbye-plugin'}; // we are only interested in our main stimulus, not fixation, feedback etc.
+      var rows = {trial_type: 'custom-stop-signal-plugin'}; // we are only interested in our main stimulus, not fixation, feedback etc.
 
       var selected_data = jsPsych.data.get().filter(rows).ignore(ignore_columns);
       // the next piece of codes orders the columns of the data file
@@ -1273,13 +1305,14 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
       //   }
       // }
 
-      // const all_trials = jsPsych.data.get().filter({trial_type: 'custom-stop-signal-plugin'});
+      const all_trials = jsPsych.data.get().filter({trial_type: 'custom-stop-signal-plugin'});
 
       // handleStop()
 
-      // uploadToLeaderboard(subjID, Math.round(all_trials.select('rt').subset(function(x){ return x > 0; }).mean()));
-      // fetchS3ObjectList();
-
+      uploadToLeaderboard(username,subjID, Math.round(all_trials.select('rt').subset(function(x){ return x > 0; }).mean()))
+      .then(() => {
+        fetchS3ObjectList();
+      });
       }
 
   };
@@ -1337,14 +1370,14 @@ DESCRIPTION: This is the jsPsych version of the stop-signal task
         var start_timeline = [//debug,
         welcome,
         //webcam_permission,
-         consent, gender, fullscr, instructions]
+         consent,username, gender, fullscr, instructions]
 
       } else {
 
         var start_timeline = [//debug,
         welcome,
         //webcam_permission, 
-        consent, gender, instructions]
+        consent,username, gender, instructions]
 
       }
 
